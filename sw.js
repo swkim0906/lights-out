@@ -1,5 +1,5 @@
-/* LIGHTS OUT PWA service worker — 오프라인 캐시(버전 896f000a40) */
-const C='lo-896f000a40';const CORE=['./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png'];
+/* LIGHTS OUT PWA service worker — 오프라인 캐시(버전 c11556ab59) */
+const C='lo-c11556ab59';const CORE=['./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',e=>{if(e.request.method!=='GET'||!/^https?:/.test(e.request.url)) return;
