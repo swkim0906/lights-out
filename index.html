@@ -141,6 +141,8 @@ button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
 .modal{position:fixed;inset:0;z-index:30;background:#000b;display:flex;align-items:center;justify-content:center;padding:18px max(14px,env(safe-area-inset-right,0px)) 18px max(14px,env(safe-area-inset-left,0px))}
 .mbox{width:100%;max-width:420px;max-height:100%;overflow-y:auto;border-radius:16px;background:var(--bg2);border:1px solid var(--line);border-top:3px solid var(--team);padding:18px;display:flex;flex-direction:column;gap:11px;box-shadow:0 24px 60px #000}
 .mbox h2{margin:0;font-family:var(--f-display);font-weight:400;font-size:23px;text-align:center;text-wrap:balance}
+.mx{position:sticky;top:-8px;align-self:flex-end;z-index:6;margin:-6px -6px -36px 0;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:#0b0d14e6;color:#fff;font-size:15px;font-weight:800;line-height:1;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px #0008}
+.sheet .mx{position:absolute;right:10px;top:10px;margin:0}.sheet{position:relative}
 .kicker{font-size:11px;letter-spacing:.2em;color:var(--red2);text-align:center;font-weight:800;margin-bottom:-6px}
 .mbox p{margin:0;font-size:14px;line-height:1.7;white-space:pre-line}
 .center{text-align:center}
@@ -3122,31 +3124,31 @@ return {
 var SERIES_DATA=(function(){
 const C={
  // --- F1 / F2 / F3 venues ---
- aus:{n:'앨버트 파크',city:'멜버른',nat:'AU',type:'mixed',laps:58,lap:80,deg:1.0,ovt:0.55,sc:0.55,rain:0.15,scene:'track_fast'},
- chn:{n:'상하이 인터내셔널',city:'상하이',nat:'CN',type:'technical',laps:56,lap:94,deg:1.15,ovt:0.6,sc:0.35,rain:0.2,scene:'track_tech'},
- jpn:{n:'스즈카',city:'스즈카',nat:'JP',type:'technical',laps:53,lap:91,deg:1.1,ovt:0.35,sc:0.35,rain:0.3,scene:'track_tech'},
- bhr:{n:'바레인 인터내셔널',city:'사키르',nat:'BH',type:'mixed',laps:57,lap:93,deg:1.35,ovt:0.7,sc:0.35,rain:0.02,night:1,hot:1,scene:'track_desert'},
- sau:{n:'제다 코니시',city:'제다',nat:'SA',type:'street',laps:50,lap:89,deg:0.85,ovt:0.55,sc:0.65,rain:0.02,night:1,hot:1,scene:'night'},
- mia:{n:'마이애미 인터내셔널',city:'마이애미',nat:'US',type:'street',laps:57,lap:89,deg:1.0,ovt:0.5,sc:0.5,rain:0.15,hot:1,scene:'track_street'},
- can:{n:'질 빌뇌브',city:'몬트리올',nat:'CA',type:'street',laps:70,lap:73,deg:0.95,ovt:0.6,sc:0.7,rain:0.25,scene:'track_street'},
- mon:{n:'모나코',city:'몬테카를로',nat:'MC',type:'street',laps:78,lap:72,deg:0.6,ovt:0.05,sc:0.6,rain:0.15,scene:'track_street'},
- esp:{n:'카탈루냐',city:'바르셀로나',nat:'ES',type:'technical',laps:66,lap:76,deg:1.2,ovt:0.4,sc:0.25,rain:0.1,hot:1,scene:'track_tech'},
- aut:{n:'레드 불링',city:'슈필베르크',nat:'AT',type:'highspeed',laps:71,lap:66,deg:1.0,ovt:0.65,sc:0.4,rain:0.25,scene:'track_fast'},
- gbr:{n:'실버스톤',city:'실버스톤',nat:'GB',type:'highspeed',laps:52,lap:88,deg:1.15,ovt:0.55,sc:0.4,rain:0.4,scene:'track_fast'},
- bel:{n:'스파 프랑코샹',city:'스타블로',nat:'BE',type:'highspeed',laps:44,lap:106,deg:1.0,ovt:0.7,sc:0.45,rain:0.5,scene:'rain'},
- hun:{n:'헝가로링',city:'부다페스트',nat:'HU',type:'technical',laps:70,lap:78,deg:1.05,ovt:0.25,sc:0.3,rain:0.2,hot:1,scene:'track_tech'},
- ned:{n:'잔드보르트',city:'잔드보르트',nat:'NL',type:'technical',laps:72,lap:72,deg:1.05,ovt:0.2,sc:0.4,rain:0.3,scene:'track_tech'},
- ita:{n:'몬차',city:'몬차',nat:'IT',type:'highspeed',laps:53,lap:82,deg:0.9,ovt:0.75,sc:0.35,rain:0.15,scene:'track_fast'},
- mad:{n:'마드링',city:'마드리드',nat:'ES',type:'street',laps:57,lap:86,deg:1.0,ovt:0.45,sc:0.55,rain:0.1,hot:1,scene:'track_street'},
- aze:{n:'바쿠 시티',city:'바쿠',nat:'AZ',type:'street',laps:51,lap:104,deg:0.8,ovt:0.7,sc:0.7,rain:0.05,scene:'track_street'},
- sgp:{n:'마리나 베이',city:'싱가포르',nat:'SG',type:'street',laps:62,lap:93,deg:0.95,ovt:0.25,sc:0.8,rain:0.3,night:1,hot:1,scene:'night'},
- usa:{n:'서킷 오브 디 아메리카스',city:'오스틴',nat:'US',type:'mixed',laps:56,lap:96,deg:1.15,ovt:0.6,sc:0.4,rain:0.1,hot:1,scene:'track_tech'},
- mex:{n:'에르마노스 로드리게스',city:'멕시코시티',nat:'MX',type:'mixed',laps:71,lap:79,deg:1.0,ovt:0.5,sc:0.4,rain:0.1,scene:'track_fast'},
- bra:{n:'인테르라고스',city:'상파울루',nat:'BR',type:'mixed',laps:71,lap:72,deg:1.05,ovt:0.7,sc:0.55,rain:0.45,scene:'rain'},
- lvg:{n:'라스베이거스 스트립',city:'라스베이거스',nat:'US',type:'street',laps:50,lap:95,deg:0.8,ovt:0.7,sc:0.5,rain:0.02,night:1,scene:'night'},
- qat:{n:'루사일',city:'루사일',nat:'QA',type:'highspeed',laps:57,lap:84,deg:1.4,ovt:0.45,sc:0.35,rain:0.02,night:1,hot:1,scene:'track_desert'},
- abu:{n:'야스 마리나',city:'아부다비',nat:'AE',type:'mixed',laps:58,lap:86,deg:1.0,ovt:0.5,sc:0.35,rain:0.02,night:1,scene:'track_desert'},
- imo:{n:'이몰라',city:'이몰라',nat:'IT',type:'technical',laps:63,lap:78,deg:1.0,ovt:0.25,sc:0.4,rain:0.25,scene:'track_tech'},
+ aus:{tags:['fast','slip'],n:'앨버트 파크',city:'멜버른',nat:'AU',type:'mixed',laps:58,lap:80,deg:1.0,ovt:0.55,sc:0.55,rain:0.15,scene:'track_fast'},
+ chn:{tags:['abr','brake'],n:'상하이 인터내셔널',city:'상하이',nat:'CN',type:'technical',laps:56,lap:94,deg:1.15,ovt:0.6,sc:0.35,rain:0.2,scene:'track_tech'},
+ jpn:{tags:['fast','phys','abr'],n:'스즈카',city:'스즈카',nat:'JP',type:'technical',laps:53,lap:91,deg:1.1,ovt:0.35,sc:0.35,rain:0.3,scene:'track_tech'},
+ bhr:{tags:['abr','brake'],n:'바레인 인터내셔널',city:'사키르',nat:'BH',type:'mixed',laps:57,lap:93,deg:1.35,ovt:0.7,sc:0.35,rain:0.02,night:1,hot:1,scene:'track_desert'},
+ sau:{tags:['wall','fast','slip'],n:'제다 코니시',city:'제다',nat:'SA',type:'street',laps:50,lap:89,deg:0.85,ovt:0.55,sc:0.65,rain:0.02,night:1,hot:1,scene:'night'},
+ mia:{tags:['wall','brake'],n:'마이애미 인터내셔널',city:'마이애미',nat:'US',type:'street',laps:57,lap:89,deg:1.0,ovt:0.5,sc:0.5,rain:0.15,hot:1,scene:'track_street'},
+ can:{tags:['wall','brake','slip'],n:'질 빌뇌브',city:'몬트리올',nat:'CA',type:'street',laps:70,lap:73,deg:0.95,ovt:0.6,sc:0.7,rain:0.25,scene:'track_street'},
+ mon:{tags:['pole','wall'],n:'모나코',city:'몬테카를로',nat:'MC',type:'street',laps:78,lap:72,deg:0.6,ovt:0.05,sc:0.6,rain:0.15,scene:'track_street'},
+ esp:{tags:['abr','fast'],n:'카탈루냐',city:'바르셀로나',nat:'ES',type:'technical',laps:66,lap:76,deg:1.2,ovt:0.4,sc:0.25,rain:0.1,hot:1,scene:'track_tech'},
+ aut:{tags:['slip','brake'],n:'레드 불링',city:'슈필베르크',nat:'AT',type:'highspeed',laps:71,lap:66,deg:1.0,ovt:0.65,sc:0.4,rain:0.25,scene:'track_fast'},
+ gbr:{tags:['fast','abr'],n:'실버스톤',city:'실버스톤',nat:'GB',type:'highspeed',laps:52,lap:88,deg:1.15,ovt:0.55,sc:0.4,rain:0.4,scene:'track_fast'},
+ bel:{tags:['fast','slip'],n:'스파 프랑코샹',city:'스타블로',nat:'BE',type:'highspeed',laps:44,lap:106,deg:1.0,ovt:0.7,sc:0.45,rain:0.5,scene:'rain'},
+ hun:{tags:['pole','phys'],n:'헝가로링',city:'부다페스트',nat:'HU',type:'technical',laps:70,lap:78,deg:1.05,ovt:0.25,sc:0.3,rain:0.2,hot:1,scene:'track_tech'},
+ ned:{tags:['pole','fast'],n:'잔드보르트',city:'잔드보르트',nat:'NL',type:'technical',laps:72,lap:72,deg:1.05,ovt:0.2,sc:0.4,rain:0.3,scene:'track_tech'},
+ ita:{tags:['slip','brake'],n:'몬차',city:'몬차',nat:'IT',type:'highspeed',laps:53,lap:82,deg:0.9,ovt:0.75,sc:0.35,rain:0.15,scene:'track_fast'},
+ mad:{tags:['wall','brake'],n:'마드링',city:'마드리드',nat:'ES',type:'street',laps:57,lap:86,deg:1.0,ovt:0.45,sc:0.55,rain:0.1,hot:1,scene:'track_street'},
+ aze:{tags:['wall','slip','brake'],n:'바쿠 시티',city:'바쿠',nat:'AZ',type:'street',laps:51,lap:104,deg:0.8,ovt:0.7,sc:0.7,rain:0.05,scene:'track_street'},
+ sgp:{tags:['wall','phys','pole','brake'],n:'마리나 베이',city:'싱가포르',nat:'SG',type:'street',laps:62,lap:93,deg:0.95,ovt:0.25,sc:0.8,rain:0.3,night:1,hot:1,scene:'night'},
+ usa:{tags:['fast','abr'],n:'서킷 오브 디 아메리카스',city:'오스틴',nat:'US',type:'mixed',laps:56,lap:96,deg:1.15,ovt:0.6,sc:0.4,rain:0.1,hot:1,scene:'track_tech'},
+ mex:{tags:['alt','brake','slip'],n:'에르마노스 로드리게스',city:'멕시코시티',nat:'MX',type:'mixed',laps:71,lap:79,deg:1.0,ovt:0.5,sc:0.4,rain:0.1,scene:'track_fast'},
+ bra:{tags:['slip','phys'],n:'인테르라고스',city:'상파울루',nat:'BR',type:'mixed',laps:71,lap:72,deg:1.05,ovt:0.7,sc:0.55,rain:0.45,scene:'rain'},
+ lvg:{tags:['slip','wall'],n:'라스베이거스 스트립',city:'라스베이거스',nat:'US',type:'street',laps:50,lap:95,deg:0.8,ovt:0.7,sc:0.5,rain:0.02,night:1,scene:'night'},
+ qat:{tags:['fast','phys','abr'],n:'루사일',city:'루사일',nat:'QA',type:'highspeed',laps:57,lap:84,deg:1.4,ovt:0.45,sc:0.35,rain:0.02,night:1,hot:1,scene:'track_desert'},
+ abu:{tags:['brake','slip'],n:'야스 마리나',city:'아부다비',nat:'AE',type:'mixed',laps:58,lap:86,deg:1.0,ovt:0.5,sc:0.35,rain:0.02,night:1,scene:'track_desert'},
+ imo:{tags:['pole','abr'],n:'이몰라',city:'이몰라',nat:'IT',type:'technical',laps:63,lap:78,deg:1.0,ovt:0.25,sc:0.4,rain:0.25,scene:'track_tech'},
  // --- junior & national venues ---
  lonato:{n:'사우스 가르다 로나토',city:'로나토',nat:'IT',type:'technical',laps:20,lap:48,deg:0.8,ovt:0.6,sc:0.1,rain:0.2,scene:'kart'},
  genk:{n:'겡크 카트 서킷',city:'겡크',nat:'BE',type:'mixed',laps:20,lap:52,deg:0.8,ovt:0.6,sc:0.1,rain:0.35,scene:'kart'},
@@ -3154,47 +3156,47 @@ const C={
  krist:{n:'크리스티안스타드 카트',city:'크리스티안스타드',nat:'SE',type:'technical',laps:20,lap:50,deg:0.8,ovt:0.55,sc:0.1,rain:0.35,scene:'kart'},
  franc:{n:'프란차코르타 카트',city:'프란차코르타',nat:'IT',type:'technical',laps:20,lap:49,deg:0.8,ovt:0.55,sc:0.1,rain:0.2,scene:'kart'},
  sarno:{n:'사르노 카트',city:'사르노',nat:'IT',type:'mixed',laps:20,lap:51,deg:0.85,ovt:0.6,sc:0.1,rain:0.15,scene:'kart'},
- suzk:{n:'스즈카 카트 코스',city:'스즈카',nat:'JP',type:'technical',laps:20,lap:47,deg:0.8,ovt:0.55,sc:0.1,rain:0.3,scene:'kart'},
- misano:{n:'미사노',city:'미사노',nat:'IT',type:'technical',laps:18,lap:96,deg:1.0,ovt:0.5,sc:0.3,rain:0.15,scene:'track_tech'},
- vallel:{n:'발레룽가',city:'로마',nat:'IT',type:'technical',laps:18,lap:100,deg:1.0,ovt:0.45,sc:0.3,rain:0.15,scene:'track_tech'},
- mugel:{n:'무젤로',city:'스카르페리아',nat:'IT',type:'highspeed',laps:16,lap:112,deg:1.0,ovt:0.55,sc:0.3,rain:0.2,scene:'track_fast'},
- donin:{n:'도닝턴 파크',city:'도닝턴',nat:'GB',type:'technical',laps:18,lap:72,deg:0.9,ovt:0.45,sc:0.35,rain:0.45,scene:'rain'},
- brands:{n:'브랜즈 해치',city:'켄트',nat:'GB',type:'technical',laps:20,lap:52,deg:0.9,ovt:0.4,sc:0.4,rain:0.45,scene:'track_tech'},
- thrux:{n:'스럭스턴',city:'햄프셔',nat:'GB',type:'highspeed',laps:16,lap:72,deg:1.0,ovt:0.6,sc:0.3,rain:0.45,scene:'track_fast'},
- oulton:{n:'올턴 파크',city:'체셔',nat:'GB',type:'technical',laps:16,lap:92,deg:0.9,ovt:0.35,sc:0.4,rain:0.45,scene:'rain'},
- fuji:{n:'후지 스피드웨이',city:'오야마',nat:'JP',type:'highspeed',laps:18,lap:98,deg:1.0,ovt:0.65,sc:0.35,rain:0.35,scene:'track_fast'},
- motegi:{n:'모빌리티 리조트 모테기',city:'모테기',nat:'JP',type:'technical',laps:18,lap:104,deg:1.0,ovt:0.45,sc:0.3,rain:0.3,scene:'track_tech'},
- sugo:{n:'스포츠랜드 스고',city:'무라타',nat:'JP',type:'technical',laps:20,lap:85,deg:0.95,ovt:0.4,sc:0.35,rain:0.35,scene:'track_tech'},
- autop:{n:'오토폴리스',city:'오이타',nat:'JP',type:'mixed',laps:18,lap:100,deg:1.05,ovt:0.5,sc:0.3,rain:0.35,scene:'track_tech'},
- okay:{n:'오카야마 인터내셔널',city:'미마사카',nat:'JP',type:'technical',laps:20,lap:88,deg:0.95,ovt:0.35,sc:0.3,rain:0.3,scene:'track_tech'},
- jarama:{n:'하라마',city:'마드리드',nat:'ES',type:'technical',laps:18,lap:92,deg:1.0,ovt:0.4,sc:0.3,rain:0.1,hot:1,scene:'track_tech'},
- aragon:{n:'모토랜드 아라곤',city:'알카니스',nat:'ES',type:'mixed',laps:16,lap:112,deg:1.05,ovt:0.55,sc:0.3,rain:0.1,scene:'track_desert'},
- valen:{n:'리카르도 토르모',city:'발렌시아',nat:'ES',type:'technical',laps:20,lap:92,deg:1.0,ovt:0.45,sc:0.3,rain:0.1,scene:'track_tech'},
- jerez:{n:'헤레스',city:'헤레스',nat:'ES',type:'mixed',laps:18,lap:96,deg:1.05,ovt:0.45,sc:0.3,rain:0.1,hot:1,scene:'track_tech'},
- dubai:{n:'두바이 오토드롬',city:'두바이',nat:'AE',type:'mixed',laps:16,lap:110,deg:1.05,ovt:0.55,sc:0.25,rain:0.02,scene:'track_desert'},
- kuwait:{n:'쿠웨이트 모터타운',city:'쿠웨이트',nat:'KW',type:'mixed',laps:18,lap:90,deg:1.1,ovt:0.5,sc:0.3,rain:0.02,hot:1,scene:'track_desert'},
- paulr:{n:'폴 리카르',city:'르 카스텔레',nat:'FR',type:'highspeed',laps:16,lap:115,deg:1.0,ovt:0.55,sc:0.25,rain:0.1,scene:'track_fast'},
- zandk:{n:'잔드보르트',city:'잔드보르트',nat:'NL',type:'technical',laps:18,lap:96,deg:1.0,ovt:0.3,sc:0.35,rain:0.3,scene:'track_tech'},
+ suzk:{tags:['fast','phys'],n:'스즈카 카트 코스',city:'스즈카',nat:'JP',type:'technical',laps:20,lap:47,deg:0.8,ovt:0.55,sc:0.1,rain:0.3,scene:'kart'},
+ misano:{tags:['abr'],n:'미사노',city:'미사노',nat:'IT',type:'technical',laps:18,lap:96,deg:1.0,ovt:0.5,sc:0.3,rain:0.15,scene:'track_tech'},
+ vallel:{tags:['brake'],n:'발레룽가',city:'로마',nat:'IT',type:'technical',laps:18,lap:100,deg:1.0,ovt:0.45,sc:0.3,rain:0.15,scene:'track_tech'},
+ mugel:{tags:['fast','phys'],n:'무젤로',city:'스카르페리아',nat:'IT',type:'highspeed',laps:16,lap:112,deg:1.0,ovt:0.55,sc:0.3,rain:0.2,scene:'track_fast'},
+ donin:{tags:['fast'],n:'도닝턴 파크',city:'도닝턴',nat:'GB',type:'technical',laps:18,lap:72,deg:0.9,ovt:0.45,sc:0.35,rain:0.45,scene:'rain'},
+ brands:{tags:['pole','fast'],n:'브랜즈 해치',city:'켄트',nat:'GB',type:'technical',laps:20,lap:52,deg:0.9,ovt:0.4,sc:0.4,rain:0.45,scene:'track_tech'},
+ thrux:{tags:['fast'],n:'스럭스턴',city:'햄프셔',nat:'GB',type:'highspeed',laps:16,lap:72,deg:1.0,ovt:0.6,sc:0.3,rain:0.45,scene:'track_fast'},
+ oulton:{tags:['pole'],n:'올턴 파크',city:'체셔',nat:'GB',type:'technical',laps:16,lap:92,deg:0.9,ovt:0.35,sc:0.4,rain:0.45,scene:'rain'},
+ fuji:{tags:['slip','brake'],n:'후지 스피드웨이',city:'오야마',nat:'JP',type:'highspeed',laps:18,lap:98,deg:1.0,ovt:0.65,sc:0.35,rain:0.35,scene:'track_fast'},
+ motegi:{tags:['brake'],n:'모빌리티 리조트 모테기',city:'모테기',nat:'JP',type:'technical',laps:18,lap:104,deg:1.0,ovt:0.45,sc:0.3,rain:0.3,scene:'track_tech'},
+ sugo:{tags:['pole'],n:'스포츠랜드 스고',city:'무라타',nat:'JP',type:'technical',laps:20,lap:85,deg:0.95,ovt:0.4,sc:0.35,rain:0.35,scene:'track_tech'},
+ autop:{tags:['fast'],n:'오토폴리스',city:'오이타',nat:'JP',type:'mixed',laps:18,lap:100,deg:1.05,ovt:0.5,sc:0.3,rain:0.35,scene:'track_tech'},
+ okay:{tags:['pole'],n:'오카야마 인터내셔널',city:'미마사카',nat:'JP',type:'technical',laps:20,lap:88,deg:0.95,ovt:0.35,sc:0.3,rain:0.3,scene:'track_tech'},
+ jarama:{tags:['pole'],n:'하라마',city:'마드리드',nat:'ES',type:'technical',laps:18,lap:92,deg:1.0,ovt:0.4,sc:0.3,rain:0.1,hot:1,scene:'track_tech'},
+ aragon:{tags:['fast'],n:'모토랜드 아라곤',city:'알카니스',nat:'ES',type:'mixed',laps:16,lap:112,deg:1.05,ovt:0.55,sc:0.3,rain:0.1,scene:'track_desert'},
+ valen:{tags:['pole'],n:'리카르도 토르모',city:'발렌시아',nat:'ES',type:'technical',laps:20,lap:92,deg:1.0,ovt:0.45,sc:0.3,rain:0.1,scene:'track_tech'},
+ jerez:{tags:['abr'],n:'헤레스',city:'헤레스',nat:'ES',type:'mixed',laps:18,lap:96,deg:1.05,ovt:0.45,sc:0.3,rain:0.1,hot:1,scene:'track_tech'},
+ dubai:{tags:['abr','brake'],n:'두바이 오토드롬',city:'두바이',nat:'AE',type:'mixed',laps:16,lap:110,deg:1.05,ovt:0.55,sc:0.25,rain:0.02,scene:'track_desert'},
+ kuwait:{tags:['abr'],n:'쿠웨이트 모터타운',city:'쿠웨이트',nat:'KW',type:'mixed',laps:18,lap:90,deg:1.1,ovt:0.5,sc:0.3,rain:0.02,hot:1,scene:'track_desert'},
+ paulr:{tags:['fast','abr'],n:'폴 리카르',city:'르 카스텔레',nat:'FR',type:'highspeed',laps:16,lap:115,deg:1.0,ovt:0.55,sc:0.25,rain:0.1,scene:'track_fast'},
+ zandk:{tags:['pole','fast'],n:'잔드보르트',city:'잔드보르트',nat:'NL',type:'technical',laps:18,lap:96,deg:1.0,ovt:0.3,sc:0.35,rain:0.3,scene:'track_tech'},
  // --- other top series venues ---
- stpete:{n:'세인트피터즈버그 시가지',city:'세인트피터즈버그',nat:'US',type:'street',laps:100,lap:62,deg:0.9,ovt:0.5,sc:0.6,rain:0.15,hot:1,scene:'track_street'},
- lbeach:{n:'롱비치 시가지',city:'롱비치',nat:'US',type:'street',laps:85,lap:68,deg:0.9,ovt:0.45,sc:0.6,rain:0.05,scene:'track_street'},
- indy500:{n:'인디애나폴리스 오벌 (인디 500)',city:'인디애나폴리스',nat:'US',type:'oval',laps:200,lap:40,deg:0.9,ovt:0.8,sc:0.75,rain:0.05,scene:'oval',big:1},
- roadam:{n:'로드 아메리카',city:'엘크하트 레이크',nat:'US',type:'highspeed',laps:55,lap:106,deg:1.0,ovt:0.6,sc:0.45,rain:0.25,scene:'track_fast'},
- iowa:{n:'아이오와 스피드웨이',city:'뉴턴',nat:'US',type:'oval',laps:250,lap:18,deg:1.2,ovt:0.7,sc:0.6,rain:0.1,scene:'oval'},
- laguna:{n:'라구나 세카',city:'몬터레이',nat:'US',type:'technical',laps:95,lap:68,deg:1.1,ovt:0.4,sc:0.45,rain:0.05,scene:'track_tech'},
- lemans:{n:'르망 24시 (사르트)',city:'르망',nat:'FR',type:'highspeed',laps:380,lap:206,deg:1.0,ovt:0.7,sc:0.9,rain:0.4,scene:'lemans',big:1,endurance:1},
- wecspa:{n:'스파 6시간',city:'스타블로',nat:'BE',type:'highspeed',laps:140,lap:125,deg:1.0,ovt:0.65,sc:0.6,rain:0.5,scene:'rain',endurance:1},
- wecfuji:{n:'후지 6시간',city:'오야마',nat:'JP',type:'highspeed',laps:220,lap:90,deg:1.0,ovt:0.6,sc:0.5,rain:0.35,scene:'track_fast',endurance:1},
- wecbhr:{n:'바레인 8시간',city:'사키르',nat:'BH',type:'mixed',laps:250,lap:110,deg:1.2,ovt:0.65,sc:0.4,rain:0.02,night:1,scene:'track_desert',endurance:1},
- wecqat:{n:'카타르 1812km',city:'루사일',nat:'QA',type:'highspeed',laps:340,lap:100,deg:1.3,ovt:0.5,sc:0.45,rain:0.02,night:1,scene:'track_desert',endurance:1},
- fe_mex:{n:'멕시코시티 E-프리',city:'멕시코시티',nat:'MX',type:'street',laps:36,lap:70,deg:0.8,ovt:0.7,sc:0.5,rain:0.05,scene:'fe'},
- fe_tky:{n:'도쿄 E-프리',city:'도쿄',nat:'JP',type:'street',laps:33,lap:80,deg:0.8,ovt:0.65,sc:0.55,rain:0.2,scene:'fe'},
- fe_mon:{n:'모나코 E-프리',city:'몬테카를로',nat:'MC',type:'street',laps:30,lap:82,deg:0.7,ovt:0.35,sc:0.5,rain:0.1,scene:'fe'},
- fe_ber:{n:'베를린 E-프리',city:'베를린',nat:'DE',type:'street',laps:38,lap:72,deg:0.8,ovt:0.7,sc:0.4,rain:0.2,scene:'fe'},
- fe_lon:{n:'런던 E-프리',city:'런던',nat:'GB',type:'street',laps:38,lap:76,deg:0.8,ovt:0.55,sc:0.5,rain:0.3,scene:'fe'},
- fe_dir:{n:'디리야 E-프리',city:'디리야',nat:'SA',type:'street',laps:36,lap:72,deg:0.8,ovt:0.6,sc:0.45,rain:0.02,night:1,scene:'fe'},
- fe_sha:{n:'상하이 E-프리',city:'상하이',nat:'CN',type:'street',laps:32,lap:78,deg:0.8,ovt:0.6,sc:0.45,rain:0.2,scene:'fe'},
- fe_mia:{n:'마이애미 E-프리',city:'마이애미',nat:'US',type:'street',laps:31,lap:80,deg:0.8,ovt:0.65,sc:0.45,rain:0.1,hot:1,scene:'fe'}
+ stpete:{tags:['wall','brake'],n:'세인트피터즈버그 시가지',city:'세인트피터즈버그',nat:'US',type:'street',laps:100,lap:62,deg:0.9,ovt:0.5,sc:0.6,rain:0.15,hot:1,scene:'track_street'},
+ lbeach:{tags:['wall','pole'],n:'롱비치 시가지',city:'롱비치',nat:'US',type:'street',laps:85,lap:68,deg:0.9,ovt:0.45,sc:0.6,rain:0.05,scene:'track_street'},
+ indy500:{tags:['slip','fast'],n:'인디애나폴리스 오벌 (인디 500)',city:'인디애나폴리스',nat:'US',type:'oval',laps:200,lap:40,deg:0.9,ovt:0.8,sc:0.75,rain:0.05,scene:'oval',big:1},
+ roadam:{tags:['fast','slip'],n:'로드 아메리카',city:'엘크하트 레이크',nat:'US',type:'highspeed',laps:55,lap:106,deg:1.0,ovt:0.6,sc:0.45,rain:0.25,scene:'track_fast'},
+ iowa:{tags:['fast'],n:'아이오와 스피드웨이',city:'뉴턴',nat:'US',type:'oval',laps:250,lap:18,deg:1.2,ovt:0.7,sc:0.6,rain:0.1,scene:'oval'},
+ laguna:{tags:['pole','brake'],n:'라구나 세카',city:'몬터레이',nat:'US',type:'technical',laps:95,lap:68,deg:1.1,ovt:0.4,sc:0.45,rain:0.05,scene:'track_tech'},
+ lemans:{tags:['slip','fast','phys'],n:'르망 24시 (사르트)',city:'르망',nat:'FR',type:'highspeed',laps:380,lap:206,deg:1.0,ovt:0.7,sc:0.9,rain:0.4,scene:'lemans',big:1,endurance:1},
+ wecspa:{tags:['fast','slip'],n:'스파 6시간',city:'스타블로',nat:'BE',type:'highspeed',laps:140,lap:125,deg:1.0,ovt:0.65,sc:0.6,rain:0.5,scene:'rain',endurance:1},
+ wecfuji:{tags:['slip'],n:'후지 6시간',city:'오야마',nat:'JP',type:'highspeed',laps:220,lap:90,deg:1.0,ovt:0.6,sc:0.5,rain:0.35,scene:'track_fast',endurance:1},
+ wecbhr:{tags:['abr'],n:'바레인 8시간',city:'사키르',nat:'BH',type:'mixed',laps:250,lap:110,deg:1.2,ovt:0.65,sc:0.4,rain:0.02,night:1,scene:'track_desert',endurance:1},
+ wecqat:{tags:['fast','abr'],n:'카타르 1812km',city:'루사일',nat:'QA',type:'highspeed',laps:340,lap:100,deg:1.3,ovt:0.5,sc:0.45,rain:0.02,night:1,scene:'track_desert',endurance:1},
+ fe_mex:{tags:['slip'],n:'멕시코시티 E-프리',city:'멕시코시티',nat:'MX',type:'street',laps:36,lap:70,deg:0.8,ovt:0.7,sc:0.5,rain:0.05,scene:'fe'},
+ fe_tky:{tags:['wall','pole'],n:'도쿄 E-프리',city:'도쿄',nat:'JP',type:'street',laps:33,lap:80,deg:0.8,ovt:0.65,sc:0.55,rain:0.2,scene:'fe'},
+ fe_mon:{tags:['pole','wall'],n:'모나코 E-프리',city:'몬테카를로',nat:'MC',type:'street',laps:30,lap:82,deg:0.7,ovt:0.35,sc:0.5,rain:0.1,scene:'fe'},
+ fe_ber:{tags:['abr'],n:'베를린 E-프리',city:'베를린',nat:'DE',type:'street',laps:38,lap:72,deg:0.8,ovt:0.7,sc:0.4,rain:0.2,scene:'fe'},
+ fe_lon:{tags:['wall'],n:'런던 E-프리',city:'런던',nat:'GB',type:'street',laps:38,lap:76,deg:0.8,ovt:0.55,sc:0.5,rain:0.3,scene:'fe'},
+ fe_dir:{tags:['wall'],n:'디리야 E-프리',city:'디리야',nat:'SA',type:'street',laps:36,lap:72,deg:0.8,ovt:0.6,sc:0.45,rain:0.02,night:1,scene:'fe'},
+ fe_sha:{tags:['brake'],n:'상하이 E-프리',city:'상하이',nat:'CN',type:'street',laps:32,lap:78,deg:0.8,ovt:0.6,sc:0.45,rain:0.2,scene:'fe'},
+ fe_mia:{tags:['wall'],n:'마이애미 E-프리',city:'마이애미',nat:'US',type:'street',laps:31,lap:80,deg:0.8,ovt:0.65,sc:0.45,rain:0.1,hot:1,scene:'fe'}
 };
 const P_F1=[25,18,15,12,10,8,6,4,2,1], P_SPR=[8,7,6,5,4,3,2,1];
 const S={
@@ -3448,6 +3450,8 @@ function partVal(G,t,k){if(k==='pu'||k==='ers'){const s=supOf(G,t);let v=s?s[k]:
 function carCats(G,t){return {power:partVal(G,t,'pu')*.72+partVal(G,t,'ers')*.28,df:partVal(G,t,'fw')*.3+partVal(G,t,'rw')*.25+partVal(G,t,'floor')*.45,mech:partVal(G,t,'susp')*.7+partVal(G,t,'gear')*.3,brake:partVal(G,t,'brake')}}
 const PROF_DEF={highspeed:{power:.42,df:.25,mech:.13,brake:.2},technical:{power:.15,df:.47,mech:.25,brake:.13},street:{power:.15,df:.33,mech:.32,brake:.2},mixed:{power:.28,df:.35,mech:.2,brake:.17},oval:{power:.6,df:.2,mech:.15,brake:.05}};
 const PROF_OVR={ita:{power:.55,df:.12,mech:.13,brake:.2},mon:{power:.05,df:.42,mech:.4,brake:.13},bel:{power:.4,df:.32,mech:.13,brake:.15},sgp:{power:.12,df:.38,mech:.28,brake:.22},aze:{power:.42,df:.16,mech:.18,brake:.24},lvg:{power:.48,df:.14,mech:.18,brake:.2},hun:{power:.1,df:.5,mech:.28,brake:.12},jpn:{power:.25,df:.47,mech:.18,brake:.1},gbr:{power:.3,df:.47,mech:.13,brake:.1},bhr:{power:.3,df:.25,mech:.2,brake:.25},can:{power:.35,df:.15,mech:.22,brake:.28},mex:{power:.3,df:.38,mech:.17,brake:.15},sau:{power:.4,df:.3,mech:.12,brake:.18},qat:{power:.25,df:.5,mech:.15,brake:.1},esp:{power:.22,df:.5,mech:.18,brake:.1},ned:{power:.15,df:.48,mech:.25,brake:.12},mia:{power:.32,df:.3,mech:.2,brake:.18}};
+function tagHas(tr,t){return !!(tr&&tr.tags&&tr.tags.includes(t))}
+function isSummer(G){const S=G.season;return !!(S&&S.tier==='f1'&&G.week>=31&&G.week<=33)}
 function profile(tid){const tr=D.series.C[tid]||{};return PROF_OVR[tid]||PROF_DEF[tr.type]||PROF_DEF.mixed}
 const TN={bhr:'hard',esp:'hard',gbr:'hard',jpn:'hard',qat:'hard',chn:'mid',mia:'mid',sau:'mid',ita:'mid',bel:'mid',ned:'mid',mex:'mid',usa:'mid',aus:'soft',mon:'softest',sgp:'soft',hun:'soft',can:'soft',lvg:'soft',aze:'soft',mad:'soft',aut:'soft',bra:'soft',abu:'soft'};
 const TNC={hard:['C1','C2','C3'],mid:['C2','C3','C4'],soft:['C3','C4','C5'],softest:['C4','C5','C6']};
@@ -3687,10 +3691,13 @@ const TRAIN=[
  {id:'t_factory',n:'팩토리 방문',d:'차량 개발에 피드백을 보탠다',g:{tech:8},e:12,bond:{crew:5,boss:2},dev:1,req:'f1team'},
  {id:'t_mentor',n:'스승의 특훈',d:'약점을 집중 공략한다',g:{},e:24,bond:{mentor:5},req:'mentor',mentor:1},
  {id:'t_media',n:'스폰서·미디어 활동',d:'팬과 자금을 모은다',g:{},e:12,money:1,fans:1},
- {id:'t_rest',n:'휴식',d:'몸과 마음을 회복한다',g:{},e:-45,mood:1,rest:1}
+ {id:'t_rest',n:'휴식',d:'몸과 마음을 회복한다',g:{},e:-45,mood:1,rest:1},
+ {id:'t_sim',n:'서킷 시뮬레이터',d:'다음 서킷을 미리 달린다 — 그 주말 셋업·트랙 지식 보너스',g:{tech:3,cons:2},e:10,prep:1,req:'nextRace'},
+ {id:'t_brief',n:'팀 전략 회의',d:'엔지니어와 다음 레이스 전략을 짠다 — 준비 보너스',g:{mental:3,tech:2},e:6,prep:1,bond:{eng:3},req:'nextRace'},
+ {id:'t_camp',n:'겨울 훈련 캠프',d:'오프시즌 집중 훈련 — 성장 상한이 조금 오른다',g:{fit:10,mental:4},e:30,cap:1,req:'offseason'}
 ];
 function trainList(G){
-  return TRAIN.filter(t=>{if(t.req==='mate') return !!G.season&&!!G.season.mate;if(t.req==='f1team') return G.season&&['f1','wec','fe','sf','indy','gt'].includes(G.season.tier);if(t.req==='mentor') return !!G.mentor;return true});
+  return TRAIN.filter(t=>{if(t.req==='mate') return !!G.season&&!!G.season.mate;if(t.req==='f1team') return G.season&&['f1','wec','fe','sf','indy','gt'].includes(G.season.tier);if(t.req==='mentor') return !!G.mentor;if(t.req==='nextRace'){const w=weeksToNext(G);return !!G.season&&w!=null&&w>=1&&w<=4}if(t.req==='offseason') return !G.season;return true});
 }
 function failChance(G,t){if(t.rest) return 0;const e=G.d.energy;let f=e>=50?0:e>=30?(50-e)*1.2:24+(30-e)*2.4;f*=Math.max(0.3,1-deckFx(G,'failDown'));const tf=talentFx(G,null,'train');if(tf.fail) f*=Math.max(.2,1+tf.fail);return Math.round(clamp(f,0,85))}
 function trainPreview(G,t){
@@ -3719,8 +3726,10 @@ function doTrain(G,id){
     res.gain[k]=-1;return res;
   }
   const g=trainPreview(G,t);
-  for(const k in g){d.st[k]+=g[k];res.gain[k]=g[k]}
-  const ecost=t.e>0?t.e*Math.max(.4,1+(pt.energyCost||0)-deckFx(G,'energyDown')):t.e;
+  const tb=boostActive(G,'trainer')?1.25:1;for(const k in g){const v=Math.round(g[k]*tb);d.st[k]+=v;res.gain[k]=v}if(tb>1) res.trainer=1;
+  if(t.prep){const nr=nextRace(G);if(nr){G.prep=G.prep||{};G.prep[nr.rid]=Math.min(3,(G.prep[nr.rid]||0)+1);res.prep=G.prep[nr.rid]}}
+  if(t.cap){const k=Object.keys(t.g)[0];if(k&&d.cap[k]!=null){d.cap[k]=Math.min(995,d.cap[k]+2);res.capUp=(res.capUp||0)+2}}
+  const ecost=(t.e>0?t.e*Math.max(.4,1+(pt.energyCost||0)-deckFx(G,'energyDown')):t.e)*(isSummer(G)&&t.e>0?0.5:1);
   res.cards=[];for(const s0 of cardsOn(G,t.id)){const c=D.CARD[s0.id];const f=cardFx(c,s0.lb);const b0=s0.bond;s0.bond=Math.min(100,s0.bond+(c.type==='friend'?9:7));s0.seenOnce=1;res.cards.push({id:s0.id,bond:s0.bond,friend:b0>=80&&(c.type===TRAIN_STAT[t.id]||c.type==='friend')});
     if(b0>=80&&(c.type===TRAIN_STAT[t.id]||c.type==='friend')&&TRAIN_STAT[t.id]){const k=TRAIN_STAT[t.id];d.capFr=d.capFr||{};if((d.capFr[k]||0)<60){d.cap[k]=Math.min(995,d.cap[k]+4);d.capFr[k]=(d.capFr[k]||0)+4;res.capUp=(res.capUp||0)+4}}
     if(c.type==='friend'){d.energy=clamp(d.energy+5,0,100)}
@@ -3848,11 +3857,13 @@ function makeWeekend(G){
   const act={};for(const k in fc){act[k]=R()<0.72?fc[k]:roll()}
   const temp=k=>Math.round(baseT+rnd(-5,5)+(act[k]==='heavy'||act[k]==='light'?-8:act[k]==='cloud'?-3:0));
   const tn=S.tier==='f1'?(TN[r.rid]||'mid'):'mid';
+  const pp=Math.min(3,(G.prep&&G.prep[r.rid])||0),simB=!!(G.boost&&G.boost.simRid===r.rid),tf=S.testFx||{};
+  if(G.boost&&G.boost.simRid===r.rid) G.boost.simRid=null;if(G.prep) delete G.prep[r.rid];
   const W={round:S.cal.indexOf(r)+1,rid:r.rid,tr,S0,tier:S.tier,sprint:r.sprint,
     forecast:wetChance,fc,act,temp:{fp:temp('fp'),q:temp('q'),race:temp('race')},tn,tnC:TNC[tn],
     weather:act.race==='heavy'||act.race==='light'?'start':act.race==='change'?'mid':'dry',rainMax:act.race==='heavy'?0.95:act.race==='light'?0.5:rnd(.35,.9),
     qwet:act.q==='heavy'||act.q==='light',
-    setup:40+Math.round(G.d.st.tech/40),know:0,qbonus:0,grid:null,races:[],gridPen:0,puMode:0};
+    setup:40+Math.round(G.d.st.tech/40)+pp*7+(simB?12:0)+(tf.setup||0),know:pp*5+(simB?8:0)+(tf.know||0),qbonus:-(pp*0.02)-(tf.q||0),prep:pp,simBoost:simB,testFx:tf,grid:null,races:[],gridPen:0,puMode:0};
   const single=['kart','f4','fr','f3'].includes(S.tier);
   const fsets=S.tier==='f1'?(r.sprint?{S:6,M:4,H:2}:{S:8,M:3,H:2}):single?{M:S.tier==='f3'?5:4}:S.tier==='f2'?{S:3,M:3}:{S:3,M:3,H:2};
   W.qc=single?'M':'S';W.single=single;
@@ -4256,6 +4267,7 @@ Race.prototype.step=function(){
   // per-car lap
   const meTf=talentFx(G,this.ctx(this.me),'race');
   for(const t of meTf._trig||[]) this.trigger(t);
+  if(tagHas(tr,'brake')&&!this.me.dnf&&lap>1&&!this.sc&&!this.vsc&&R()<(this.me.mode>0?0.02:0.011)){this.me.time+=rnd(0.6,1.8);this.say('lockup',{fallback:'브레이킹 존에서 락업! 플랫 스폿 진동을 안고 달린다.'})}
   for(const c of this.order){
     if(c.dnf) continue;
     if(c.penServe&&c.penServe.length&&!this.sc&&!this.vsc){const ps=c.penServe[0];if(lap>=ps.due||(!c.me&&R()<.5)){c.penServe.shift();const lane=Math.max(12,(W.tr.pitLoss||21)-2.3);c.time+=lane+(ps.type==='sg'?ps.v:0);c.served=(c.served||0)+1;if(c.me) this.say('pen_serve',{fallback:`${ps.type==='sg'?ps.v+'초 스톱 앤 고':'드라이브스루'} 페널티 소화. 피트레인을 지나 코스로 복귀.`},1)}}
@@ -4312,7 +4324,7 @@ Race.prototype.step=function(){
     const pb=prevOrder.indexOf(B),pa=prevOrder.indexOf(A);
     if(pb>pa&&(this.sc||this.vsc)){B.time=A.time+0.2;continue}
     if(pb>pa&&!this.sc){
-      let p=0.3+(B.st.craft-A.st.craft)/1300+tr.ovt*0.45+(A.time-B.time)*0.6+0.06;
+      let p=0.3+(B.st.craft-A.st.craft)/1300+tr.ovt*0.45+(A.time-B.time)*0.6+0.06;if(tagHas(this.W.tr,'slip')) p+=0.05*Math.sign((B.car||0)-(A.car||0));  // 슬립스트림 서킷: 차 성능 우위가 직선에서 더 잘 먹힌다
       if(B.me){const tf=talentFx(G,this.ctx(B),'race');p+=(tf.overtake||0)/100;if(B.boostL>0) p+=0.12}
       if(A.me){const tf=talentFx(G,this.ctx(A),'race');p-=(tf.defend||0)/100;if(A.defB&&this.lap<=A.defB) p-=0.15}
       if(B.mode===2) p+=0.12;
@@ -4325,7 +4337,7 @@ Race.prototype.step=function(){
       // contact
       const pc=0.012*(B.mode===2?3:B.mode>0?1.5:1)*(1.3-B.st.craft/1000)*(A.defB&&this.lap<=A.defB?1.8:1)*(1+this.w);
       if(R()<pc){const atkFault=!(A.defB&&this.lap<=A.defB&&R()<.5)&&R()<.75;const F=atkFault?B:A,V=atkFault?A:B;
-        if(R()<0.25){V.dnf='crash';this.say(F.me||V.me?'collision':'collision_o',{other:F.me?V.call:F.call,fallback:`접촉! ${F.call} 선수와 ${V.call} 선수가 부딪혔다! ${V.call} 선수 리타이어!`},2);if(V.me) d.rec.crashes=(d.rec.crashes||0)+1;this.pen(F,'time',10,`${V.call} 선수와의 충돌 유발`,2);this.neutral('crash',`${V.call} 선수 사고.`)}
+        if(R()<(tagHas(this.W.tr,'wall')?0.38:0.25)){V.dnf='crash';this.say(F.me||V.me?'collision':'collision_o',{other:F.me?V.call:F.call,fallback:`접촉! ${F.call} 선수와 ${V.call} 선수가 부딪혔다! ${V.call} 선수 리타이어!`},2);if(V.me) d.rec.crashes=(d.rec.crashes||0)+1;this.pen(F,'time',10,`${V.call} 선수와의 충돌 유발`,2);this.neutral('crash',`${V.call} 선수 사고.`)}
         else{F.time+=rnd(1,4);V.time+=rnd(3,8);V.dmg=Math.max(V.dmg||0,rnd(0.15,0.4));this.say(F.me||V.me?'collision':'collision_o',{other:F.me?V.call:F.call,fallback:`접촉! ${F.call} 선수가 ${V.call} 선수와 부딪혔다. ${V.call} 선수 프런트 윙 손상!`},1);if(F.me||V.me) this.say('collision_d',{fallback:`${V.me?G.d.call+' 선수 프런트 윙 손상!':V.call+' 선수 프런트 윙 손상!'}`});if(R()<.7) this.pen(F,'time',5,`${V.call} 선수와의 충돌 유발`);if(R()<.4) this.neutral('yellow','파편 발생.')}}
     }
   }
@@ -4431,7 +4443,7 @@ function raceRewards(G,W,race){
   const tp=Math.round(8+out.pts*0.6+(pos===1?20:0));d.tp+=tp;out.tp=tp;
   const fans=Math.round((dnf?100:(400+Math.max(0,12-pos)*250))*tierF);d.fans+=fans;out.fans=fans;
   const prize=Math.round((dnf?0:Math.max(0,11-pos)*2500)*tierF);d.money+=prize;out.money=prize;
-  d.energy=clamp(d.energy-Math.round(8+race.laps*0.22)-(W.tr.hot?5:0)+(W.races.length>1&&rc.i<W.races.length-1?6:0),0,100);
+  d.energy=clamp(d.energy-Math.round(8+race.laps*0.22)-(W.tr.hot?5:0)-(tagHas(W.tr,'phys')?6:0)+(W.races.length>1&&rc.i<W.races.length-1?6:0),0,100);
   d.mood=clamp(d.mood+(pos<=3&&!dnf?1:dnf||pos>15?-1:0),0,4);
   d.bond.crew=clamp(d.bond.crew+1,0,100);
   if(race.fastPit&&race.fastPit.me){d.bond.crew=clamp(d.bond.crew+3,0,100);out.fastPit=race.fastPit.t}
@@ -4656,6 +4668,39 @@ function applyLegacy(G,meta){const d=G.d;const pk=(meta&&meta.perks)||{};
 function sponsorIncome(G){const d=G.d;return Math.max(0,Math.round(spSum(G,'seasonMoney'))+Math.round(Math.min(6e6,Math.sqrt(d.fans)*600)+d.rep*3000*(G.season&&['kart','f4','fr','f3','f2'].includes(G.season.tier)?1:2)))}
 
 /* ---------------- endings ---------------- */
+
+/* ---- 재화 사용처: 지출·투자 ---- */
+const SHOP_BASE={kart:3000,f4:6000,fr:9000,f3:15000,f2:30000,f1:120000,sf:20000,indy:40000,wec:30000,fe:40000,gt:25000};
+const SHOP=[
+ {id:'trainer',n:'개인 트레이너 계약',d:'4주 동안 훈련 성장 +25%',mul:4,icon:'🏋️'},
+ {id:'physio',n:'피지오 집중 케어',d:'체력 +40 즉시 회복 (주 1회)',mul:1,icon:'🧘'},
+ {id:'sim',n:'팩토리 시뮬레이터 세션',d:'다음 레이스 셋업 +12 · 트랙 지식 +8',mul:1.5,icon:'🎮'},
+ {id:'pr',n:'PR 에이전시 캠페인',d:'팬 +6% (최소 +400) · 평판 +2',mul:2.5,icon:'📣'},
+ {id:'agent',n:'에이전트 고용',d:'계약 협상 성공률·시장 가치 상승 (영구)',mul:8,icon:'🤝',once:'agent_hired'},
+ {id:'dev',n:'팀 개발 기부',d:'진행 중인 업그레이드 20% 가속 (F1)',mul:6,icon:'⚙️',f1:1},
+];
+function boostActive(G,k){const b=G.boost||{};const wk=G.year*100+G.week;return k==='trainer'?(b.trainerUntil||0)>=wk:false}
+function shopList(G){const S=G.season,tier=S?S.tier:'kart';const base=SHOP_BASE[tier]||5000;const d=G.d;const wk=G.year*100+G.week;
+  return SHOP.filter(s=>!(s.f1&&!(S&&S.tier==='f1'))).map(s=>{const cost=Math.round(base*s.mul);let why='';
+    if(s.once&&d.flags[s.once]) why='이미 보유';
+    else if(s.id==='physio'&&G.boost&&G.boost.physioWk===wk) why='이번 주 사용함';else if(s.id==='physio'&&d.energy>=90) why='체력이 충분함';
+    else if(s.id==='trainer'&&boostActive(G,'trainer')) why='계약 중 ('+((G.boost.trainerUntil-wk)+1)+'주 남음)';
+    else if(s.id==='sim'){const nr=nextRace(G);if(!nr) why='다음 레이스 없음';else if(G.boost&&G.boost.simRid===nr.rid) why='예약됨'}
+    else if(s.id==='dev'){const t=S&&S.tier==='f1'?f1Team(G,S.team.id):null;if(!t||!t.proj) why='진행 중인 개발 없음'}
+    if(!why&&d.money<cost) why='자금 부족';return Object.assign({},s,{cost,why})})}
+function buy(G,id){const it=shopList(G).find(s=>s.id===id);if(!it||it.why) return {ok:false,msg:it?it.why:'없음'};const d=G.d;d.money-=it.cost;G.boost=G.boost||{};const wk=G.year*100+G.week;let msg='';
+  if(id==='trainer'){G.boost.trainerUntil=wk+3;msg='4주 동안 훈련 성장 +25%'}
+  else if(id==='physio'){d.energy=clamp(d.energy+40,0,100);G.boost.physioWk=wk;msg='체력 +40'}
+  else if(id==='sim'){G.boost.simRid=nextRace(G).rid;msg='다음 레이스에 셋업 +12 · 트랙 지식 +8 예약'}
+  else if(id==='pr'){const f=Math.max(400,Math.round(d.fans*0.06));d.fans+=f;d.rep=clamp(d.rep+2,0,100);msg=`팬 +${f} · 평판 +2`}
+  else if(id==='agent'){d.flags.agent_hired=1;msg='에이전트 고용 — 계약 협상이 유리해진다'}
+  else if(id==='dev'){const t=f1Team(G,G.season.team.id);t.proj.prog+=t.proj.need*0.2;msg='업그레이드 진행 +20%'}
+  d.rec.spent=(d.rec.spent||0)+it.cost;return {ok:true,msg,cost:it.cost}}
+/* 우리 팀 업그레이드 투입 예상(주·라운드) */
+function devEta(G){const S=G.season;if(!S||S.tier!=='f1') return null;const t=f1Team(G,S.team.id);if(!t||!t.proj) return null;const d=G.d;const rate=(t.budget/100)*0.85*atrFactor(G,t)*(t.dev||1)*(1+(d.st.tech-400)/2500+d.bond.eng/700);const w=Math.max(1,Math.ceil((t.proj.need-t.proj.prog)/Math.max(0.01,rate)));const r=S.cal.find(x=>!x.done&&x.week>=G.week+w);return {weeks:w,round:r?S.cal.indexOf(r)+1:null,part:t.proj.part,gain:t.proj.gain}}
+/* 프리시즌 테스트: 개막 3주 전부터 개막 전까지 한 번. 집중 분야가 시즌 내내 작은 보너스 */
+function preseasonDue(G){const S=G.season;return !!(S&&!S.tested&&S.cal.length&&!S.cal[0].done&&G.week>=S.cal[0].week-3&&G.week<S.cal[0].week)}
+function preseasonTest(G,focus){const S=G.season;if(!S||S.tested) return null;S.tested=1;S.testFx=focus==='long'?{know:5}:focus==='quali'?{q:0.025}:{setup:6};G.d.energy=clamp(G.d.energy-8,0,100);return S.testFx}
 function endVal(G,k){const d=G.d;if(d.st[k]!=null) return d.st[k];if(k==='fans'||k==='money'||k==='rep') return d[k]||0;if(k==='age') return age(G);if(k.startsWith('bond_')) return d.bond[k.slice(5)]||0;if(k==='sl') return slPoints(G);return d.rec[k]||0}
 function endOk(G,r){if(!r) return true;const d=G.d;
   if(r.min) for(const k in r.min) if(endVal(G,k)<r.min[k]) return false;
@@ -4683,7 +4728,7 @@ function computeEnding(G){
 
 function log(G,t){G.journal.push(`${age(G)}살 · ${t}`);if(G.journal.length>300) G.journal.shift()}
 
-return {init,newCareer,STATS,SLABEL,grade,TRAIN,trainList,trainPreview,doTrain,failChance,age,nextRace,weeksToNext,makeWeekend,practice,qualify,Race,raceRewards,standings,mePosStanding,endSeason,makeOffers,acceptOffer,sponsorIncome,computeEnding,talentCost,learn,breakthrough,refreshHints,pickEvent,applyFx,reqOk,checkP,val,eff,slPoints,COMP,f1Team,log,value,avgStat,setRng:f=>{R=f},talentFx,startSeason,seriesOf,carRating,PARTS,DEV_PARTS,devTick,setDev,partRanks,partVal,carCats,profile,TNC,TNE,estimatePlans,setsLeft,puState,newPU,PU_ALLOWED,supOf,evolveF1World,setDeck,placeCards,cardsOn,cardTrainMult,cardEventDue,cardEventDone,cardFx,deckFx,OBJ,objState,objCheck,SETUP_K,setupIdeal,setupScore,setupFeedback,checkAch,achOk,pullCards,TRAIN_STAT,scoutScore,scoutGrade,computeEpilogues,MISSIONS,missionState,claimMission,PERKS,legacyPoints,applyLegacy,commPick,serveBan,engOf,engPlans,crewOf,requestEngineer,ENG_STYLE,PIT_BASE,practiceTable,weekendFormat,traitList,hasTrait,checkOvercome,influence,devMode,devShort,suggestDev,aiMarket,negotiate,negChance,offerBlocked,valueNow,summerWindow,signPre,renegotiate,loyalStay,STAT_CAT,STAT_FX,derived,spGet};
+return {init,newCareer,STATS,SLABEL,grade,TRAIN,trainList,shopList,buy,devEta,tagHas,isSummer,preseasonDue,preseasonTest,boostActive,trainPreview,doTrain,failChance,age,nextRace,weeksToNext,makeWeekend,practice,qualify,Race,raceRewards,standings,mePosStanding,endSeason,makeOffers,acceptOffer,sponsorIncome,computeEnding,talentCost,learn,breakthrough,refreshHints,pickEvent,applyFx,reqOk,checkP,val,eff,slPoints,COMP,f1Team,log,value,avgStat,setRng:f=>{R=f},talentFx,startSeason,seriesOf,carRating,PARTS,DEV_PARTS,devTick,setDev,partRanks,partVal,carCats,profile,TNC,TNE,estimatePlans,setsLeft,puState,newPU,PU_ALLOWED,supOf,evolveF1World,setDeck,placeCards,cardsOn,cardTrainMult,cardEventDue,cardEventDone,cardFx,deckFx,OBJ,objState,objCheck,SETUP_K,setupIdeal,setupScore,setupFeedback,checkAch,achOk,pullCards,TRAIN_STAT,scoutScore,scoutGrade,computeEpilogues,MISSIONS,missionState,claimMission,PERKS,legacyPoints,applyLegacy,commPick,serveBan,engOf,engPlans,crewOf,requestEngineer,ENG_STYLE,PIT_BASE,practiceTable,weekendFormat,traitList,hasTrait,checkOvercome,influence,devMode,devShort,suggestDev,aiMarket,negotiate,negChance,offerBlocked,valueNow,summerWindow,signPre,renegotiate,loyalStay,STAT_CAT,STAT_FX,derived,spGet};
 })();
 if(typeof module!=='undefined') module.exports=CORE;
 
@@ -4749,6 +4794,10 @@ const SFX=(()=>{let ac=null,master=null,eng=null,rain=null,mus=null,crowd=null,w
   }})();
 let WM='full';
 function wmAuto(){return WM!=='full'}
+/* 진동: 네이티브(Capacitor Haptics)면 임팩트/알림, 아니면 navigator.vibrate(안드로이드 크롬). iOS 사파리는 진동 API가 없다 */
+const HAP={on:()=>meta.settings.haptic!==0,tap(kind){if(!this.on()) return;try{const Cp=window.Capacitor,H=Cp&&Cp.isNativePlatform&&Cp.isNativePlatform()&&Cp.Plugins&&Cp.Plugins.Haptics;
+    if(H){if(kind==='win') H.notification({type:'SUCCESS'});else H.impact({style:kind==='go'?'HEAVY':kind==='med'?'MEDIUM':'LIGHT'});return}
+    if(navigator.vibrate) navigator.vibrate(kind==='go'?[40,40,80]:kind==='win'?[30,50,30,50,60]:kind==='med'?35:18)}catch(e){}}};
 const TIPS={
   hub:['매주의 흐름','여기가 홈이에요. 레이스가 없는 주에는 훈련을 하나 골라 능력치를 키워요. 체력이 낮으면 훈련이 실패하니 가끔 쉬어 주세요. 레이스 주가 되면 아래 버튼이 "레이스 위크엔드 시작"으로 바뀌어요. 위쪽 미션 카드를 따라가면 기본기를 익힐 수 있어요.','mentor'],
   train:['훈련','훈련마다 오르는 능력치가 달라요. 막대 끝의 눈금이 성장 상한이라 그 이상은 오르지 않아요. 같은 훈련을 반복하면 숙련도가 올라 효율이 좋아져요. 실패 확률은 체력이 50 아래로 떨어지면 생겨요.','mentor'],
@@ -4777,9 +4826,10 @@ const HL_KEYS=['final','red','adv','dmg','sc','cover','am','en'];
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function screen(id){['title','scout','hub','race'].forEach(x=>$('#'+x).hidden=x!==id)}
 let toastT;function toast(m){const t=$('#toast');t.innerHTML=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2300)}
-let mres=null;function modal(h,locked){$('#mbox').innerHTML=h;try{const tl=($('#mbox').textContent||'').length;l2talk($('#mbox'),Math.min(2600,400+tl*18))}catch(e){};$('#modal').hidden=false;$('#modal').dataset.locked=locked?'1':'';$('#mbox').scrollTop=0;return new Promise(r=>mres=r)}
+/* 긴 모달(스킬·도감 등)도 맨 아래까지 안 내려가고 닫도록 위에 붙는 ✕ (잠긴 모달 제외). 안드로이드 뒤로가기·배경 탭도 닫는다 */
+let mres=null;function modal(h,locked){$('#mbox').innerHTML=(locked?'':'<button class="mx" data-act="mclose" aria-label="닫기">✕</button>')+h;try{const tl=($('#mbox').textContent||'').length;l2talk($('#mbox'),Math.min(2600,400+tl*18))}catch(e){};$('#modal').hidden=false;$('#modal').dataset.locked=locked?'1':'';$('#mbox').scrollTop=0;return new Promise(r=>mres=r)}
 function closeModal(v){$('#modal').hidden=true;const r=mres;mres=null;r&&r(v)}
-let sres=null,sdraw=null;function sheet(draw){sdraw=draw;draw();$('#sheetWrap').hidden=false;return new Promise(r=>sres=r)}
+let sres=null,sdraw=null;function sheet(draw){sdraw=()=>{draw();const s=$('#sheet');if(s&&!s.querySelector('[data-act=shClose]')) s.insertAdjacentHTML('afterbegin','<button class="mx" data-act="shClose" aria-label="닫기">✕</button>')};sdraw();$('#sheetWrap').hidden=false;return new Promise(r=>sres=r)}
 function closeSheet(v){$('#sheetWrap').hidden=true;const r=sres;sres=null;r&&r(v)}
 function money(v){const a=Math.abs(v),s=v<0?'-':'';if(a>=1e6) return s+'€'+(a/1e6).toFixed(a>=1e7?0:1)+'M';if(a>=1e3) return s+'€'+Math.round(a/1e3)+'K';return s+'€'+Math.round(a)}
 function nfmt(v){return v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e4?Math.round(v/1e3)+'K':Math.round(v).toLocaleString('ko-KR')}
@@ -4938,17 +4988,17 @@ function renderHub(){SFX.bgm('hub');if(G&&G.recNote){const rn=G.recNote;G.recNot
   $('#hPlate').innerHTML=`<div class="nm ${d.name.length>7?'long':''}">${esc(d.name)}</div><div class="sub">${esc(S?S.team.n:'소속 없음')} · #${d.num}</div>
     <div class="chipRow" style="margin-top:4px">${S?`<span class="chip gold">시즌 ${pos}위 · ${S.pts.me}점</span>`:''}<span class="chip cyan">재능P ${d.tp}</span>${d.tokens?`<span class="chip red">돌파 증표 ${d.tokens}</span>`:''}${G.precontract?`<span class="chip gold">내년 ${esc(G.precontract.team.short||G.precontract.team.n)} 이적</span>`:''}<span class="chip">SL ${C.slPoints(G)}</span></div>`;
   const nr=C.nextRace(G);
-  if(nr){const w=nr.week-G.week;const tr=DATA.series.C[nr.rid]||{};$('#hNext').innerHTML=`<span>다음 레이스 · R${S.cal.indexOf(nr)+1}</span><b>${esc(tr.n||nr.rid)}</b><span class="cd num">${w<=0?'이번 주':w+'주 후'}</span>${nr.sprint?'<span class="chip gold">스프린트</span>':''}`;$('#hNext').hidden=false}
+  if(nr){const w=nr.week-G.week;const tr=DATA.series.C[nr.rid]||{};$('#hNext').innerHTML=`<span>다음 레이스 · R${S.cal.indexOf(nr)+1}</span><b>${esc(tr.n||nr.rid)}</b><span class="cd num">${w<=0?'이번 주':w+'주 후'}</span>${(G.prep&&G.prep[nr.rid])?`<span class="chip gold">준비 ×${G.prep[nr.rid]}</span>`:(w>=1&&w<=4?'<span class="chip">준비 가능: 시뮬레이터·전략 회의</span>':'')}<button class="ib" data-act="cal" style="margin-top:4px;font-size:11px">📅 연간 일정</button>${nr.sprint?'<span class="chip gold">스프린트</span>':''}`;$('#hNext').hidden=false}
   else $('#hNext').hidden=true;
   $('#hMeters').innerHTML=`<div class="mt"><div class="moodRow"><span>체력</span><b class="num" style="color:${d.energy<30?'var(--red)':'var(--ink)'}">${Math.round(d.energy)}</b></div><span class="tr"><i style="width:${d.energy}%;background:linear-gradient(90deg,#3ee0ff,#a6ff4d)"></i></span></div>
     <div class="mt"><div class="moodRow"><span>컨디션</span><b class="mood" style="color:${MOODC[d.mood]}">${MOODN[d.mood]}</b></div><span class="tr"><i style="width:${(d.mood+1)*20}%;background:${MOODC[d.mood]}"></i></span></div>`;
   $('#hSec').innerHTML=`<span class="sec">능력치</span><span class="trMini">${C.traitList(G).map(t=>`<span class="kd-${t.kind}">${esc(t.n)}</span>`).join('')}</span><button data-act="guide">영향·특성 ›</button>`;
   $('#hStats').innerHTML=statsHTML();
-  const acts=[['talent','재능',d.tp>=60?'배울 수 있음':''],['team','팀',''],['standing','순위',''],['record','기록','']];
-  if(S&&S.tier==='f1'){const t=C.f1Team(G,S.team.id);acts.splice(1,0,['dev','개발',t&&t.proj?Math.round(t.proj.prog/t.proj.need*100)+'%':''])}
+  const acts=[['talent','재능',d.tp>=60?'배울 수 있음':''],['team','팀',''],['standing','순위',''],['record','기록',''],['shop','지출',C.boostActive(G,'trainer')?'트레이너':'']];
+  if(S&&S.tier==='f1'){const t=C.f1Team(G,S.team.id);const eta=C.devEta(G);acts.splice(1,0,['dev','개발',t&&t.proj?(eta&&eta.round?'R'+eta.round+' 투입':Math.round(t.proj.prog/t.proj.need*100)+'%'):''])}
   $('#hActs').style.gridTemplateColumns=`repeat(${acts.length},1fr)`;
   const lockT=G.stats.races<1;
-  $('#hActs').innerHTML=acts.map(([k,n,b])=>`<button class="act" data-act="${k}" ${k==='talent'&&lockT?'disabled':''}><span class="ic">${{talent:'✦',team:'⚑',standing:'#',record:'≡',dev:'⚙'}[k]}</span>${n}${b&&!(k==='talent'&&lockT)?`<span class="badge">${b}</span>`:''}${k==='talent'&&lockT?'<span class="lock">첫 레이스 후 해금</span>':''}</button>`).join('');
+  $('#hActs').innerHTML=acts.map(([k,n,b])=>`<button class="act" data-act="${k}" ${k==='talent'&&lockT?'disabled':''}><span class="ic">${{talent:'✦',team:'⚑',standing:'#',record:'≡',dev:'⚙',shop:'€'}[k]}</span>${n}${b&&!(k==='talent'&&lockT)?`<span class="badge">${b}</span>`:''}${k==='talent'&&lockT?'<span class="lock">첫 레이스 후 해금</span>':''}</button>`).join('');
   {const os=C.objState(G);let el=$('#hObj');if(!el){$('#hMeters').insertAdjacentHTML('afterend','<div id="hObj"></div>');el=$('#hObj')}
     el.innerHTML=os?`<div class="objc"><b>커리어 목표 ${os.i+1}/${os.n} · ${esc(os.o.n)} ${os.done?'<span style="color:var(--lime)">✓ 달성 (시즌 종료 시 보상)</span>':''}</b><small>마감: ${os.o.by}살 시즌까지 ${os.left>0?'· '+os.left+'시즌 남음':'· 이번 시즌이 마지막'} · 보상 재능P ${os.o.rw.tp} · 코인 ${os.o.rw.coins} · 실패하면 팬·평판·컨디션 하락</small></div>`:''}
   {const ms=C.missionState(G);let el=$('#hMis');if(!el){$('#hMeters').insertAdjacentHTML('afterend','<div id="hMis"></div>');el=$('#hMis')}
@@ -4979,7 +5029,7 @@ async function doTrain(id){
   const ch=Object.entries(r.gain).filter(([k,v])=>v>0).map(([k,v])=>[k,v]);
   if(r.money) ch.push(['money',r.money]);if(r.fans) ch.push(['fans',r.fans]);if(r.tp) ch.push(['tp',r.tp]);
   if(r.fail) toast(`훈련 실패… 컨디션이 떨어졌다${r.injury?' · 가벼운 부상':''}`);
-  else toast(`${esc(r.t.n)} 완료`+(ch.length?' · '+ch.slice(0,3).map(([k,v])=>`${FXL[k]} +${k==='money'?money(v):v}`).join(' '):'')+(r.cards&&r.cards.some(x=>x.friend)?' · 우정 훈련!':r.cards&&r.cards.length?` · 유대 ↑${r.cards.length}`:'')+(r.hint?` · 힌트: ${(DATA.TAL[r.hint]||{}).n}`:'')+(r.capUp?` · 성장 상한 +${r.capUp}`:''));
+  else toast(`${esc(r.t.n)} 완료`+(ch.length?' · '+ch.slice(0,3).map(([k,v])=>`${FXL[k]} +${k==='money'?money(v):v}`).join(' '):'')+(r.cards&&r.cards.some(x=>x.friend)?' · 우정 훈련!':r.cards&&r.cards.length?` · 유대 ↑${r.cards.length}`:'')+(r.hint?` · 힌트: ${(DATA.TAL[r.hint]||{}).n}`:'')+(r.prep?` · 다음 레이스 준비 ×${r.prep}`:'')+(r.trainer?' · 트레이너 +25%':'')+(r.capUp?` · 성장 상한 +${r.capUp}`:''));
   if(r.cards&&r.cards.some(x=>x.friend)) SFX.fanfare();
   await afterWeek();
 }
@@ -5005,6 +5055,7 @@ async function afterWeek(silent){
   if(G.opt&&G.opt.short){const nr=C.nextRace(G);if((nr&&nr.week-G.week>=2)||(!G.season&&G.week<47)){G.week++;C.devTick(G)}}
   if(!silent) await upgradeNews();
   if(G.season&&G.season.tier==='f1'&&G.week>=31&&!G.season.summer){await summerWindow()}
+  if(C.preseasonDue(G)) await preseasonTestUI();
   let hadEvent=false;
   if(G.d.flags.injured){G.d.flags.injured--;if(G.d.flags.injured<=0) delete G.d.flags.injured}
   // mentor intro
@@ -5167,6 +5218,31 @@ function openTeam(){
     <p style="font-size:11.5px;color:var(--dim)">엔지니어 유대가 높으면 셋업과 차량 개발이, 크루 유대가 높으면 피트스톱이, 팀메이트 유대가 높으면 합동 훈련과 예선 슬립스트림이 좋아져요. 팀 오더를 따르면 대표의 신뢰가 오릅니다.</p>
     <button class="btn" data-act="mclose">닫기</button>`);
 }
+
+/* ---------- 서킷 특성 태그 (실제 서킷 성격을 게임 효과로): 이름, 설명 ---------- */
+const TAGN={slip:['슬립스트림','긴 직선 — 차 성능 우위가 추월로 이어진다'],pole:['트랙 포지션','추월이 어려워 예선·스타트가 결정적'],wall:['벽','실수가 곧 리타이어·세이프티카'],phys:['체력 소모','더위·고G 코너 — 레이스 후 체력 -6'],brake:['브레이크 혹사','락업·플랫 스폿 위험'],abr:['거친 노면','타이어 마모 큼'],alt:['고지대','희박한 공기 — 냉각·다운포스 부족'],fast:['초고속 코너','용기와 다운포스가 랩타임']};
+/* ---------- 지출·투자 시트 ---------- */
+function openShop(){sheet(()=>{const list=C.shopList(G);
+  $('#sheet').innerHTML=`<div class="shHead gut"><h3>지출·투자</h3><span class="chip gold">${money(G.d.money)}</span><button class="ib" data-act="shClose">✕</button></div><div class="shBody gut">
+    <p style="font-size:12px;color:var(--dim);margin:0 0 6px">자금을 훈련 효율·회복·다음 레이스 준비·평판·협상력에 씁니다. 비용은 시리즈 등급에 비례해요.</p>
+    ${list.map(s=>`<button class="opt" data-act="buy" data-id="${s.id}" ${s.why?'disabled':''}><span class="om"><b>${s.icon} ${esc(s.n)}</b><div class="od">${esc(s.d)}</div></span><span class="side"><b class="num">${money(s.cost)}</b>${s.why?`<span class="warn">${esc(s.why)}</span>`:''}</span></button>`).join('')}</div>`})}
+/* ---------- 연간 일정 시트: 프리시즌 테스트 → 라운드(연전·트리플헤더) → 서머 브레이크 → 실리 시즌 → 시즌 종료/오프시즌 ---------- */
+function openCal(){const S=G.season;sheet(()=>{let rows='';
+  const row=(wk,label,sub,cls)=>`<div class="ln ${cls||''}"><span class="lp">${wk}주</span><b>${label}</b>${sub?` <span style="color:var(--dim)">${sub}</span>`:''}</div>`;
+  if(!S){rows=`<div class="ln p1"><span class="lp">${G.week}주</span><b>오프시즌</b> <span style="color:var(--dim)">다음 시즌 계약을 기다리는 중 — 겨울 훈련 캠프로 성장 상한을 올려 두자</span></div>`}
+  else{const cal=S.cal,f1=S.tier==='f1',pre=cal[0].week-3;
+    rows+=row(pre,'프리시즌 테스트',S.tested?'완료':'집중 분야 선택 (개막 3주 전)',S.tested||G.week>pre?'':'p1');
+    cal.forEach((r,i)=>{const tr=DATA.series.C[r.rid]||{};const prev=cal[i-1];const b2b=prev&&r.week-prev.week<=1;const tri=b2b&&cal[i-2]&&prev.week-cal[i-2].week<=1;
+      if(f1&&prev&&prev.week<=31&&r.week>=33) rows+=row('31~33','서머 브레이크','팩토리 셧다운 · 훈련 체력 소모 절반','p1');
+      const st=r.done?(r.res?String(r.res).split(' / ').pop():'완료'):(r.week===G.week?'이번 주':r.week<G.week?'':`${r.week-G.week}주 후`);
+      rows+=row(r.week,`R${i+1} ${esc(tr.n||r.rid)}${r.sprint?' · 스프린트':''}`,`${st}${b2b?' · 연전':''}${tri?'(트리플헤더)':''}${G.prep&&G.prep[r.rid]?' · 준비 ×'+G.prep[r.rid]:''}${G.boost&&G.boost.simRid===r.rid?' · 시뮬레이터 예약':''}`,r.done?'':(r.week===G.week?'p2':''))});
+    if(f1) rows+=row('28~36','실리 시즌','계약 제안·이적 협상이 오가는 시기');
+    rows+=row(cal[cal.length-1].week+1,'시즌 종료','시상 · 계약 결정 → 오프시즌(겨울 캠프)')}
+  $('#sheet').innerHTML=`<div class="shHead gut"><h3>${G.year}년차 일정</h3><span class="chip">${G.week}주차</span><button class="ib" data-act="shClose">✕</button></div><div class="shBody gut"><p style="font-size:12px;color:var(--dim);margin:0 0 6px">레이스 4주 전부터 "서킷 시뮬레이터"·"팀 전략 회의" 훈련으로 그 주말을 준비할 수 있어요(최대 ×3). 팀 업그레이드 투입 라운드는 홈의 "개발" 버튼에 표시됩니다.</p><div class="feed">${rows}</div></div>`})}
+/* ---------- 프리시즌 테스트 ---------- */
+async function preseasonTestUI(){const S=G.season;if(!S) return;
+  const i=await modal(`<div class="kicker">프리시즌 테스트</div><h2>${esc(S.n)} 개막 ${Math.max(1,S.cal[0].week-G.week)}주 전</h2><p>새 시즌 차를 처음 굴리는 사흘. 팀과 함께 한 가지에 집중한다 (체력 -8).</p><div class="choices"><button class="ch" data-act="evc" data-i="0">롱런 데이터 — 모든 주말 트랙 지식 +5</button><button class="ch" data-act="evc" data-i="1">퀄리 시뮬레이션 — 모든 주말 예선 보너스</button><button class="ch" data-act="evc" data-i="2">셋업 베이스라인 — 모든 주말 셋업 +6</button></div>`,true);
+  C.preseasonTest(G,['long','quali','setup'][i]||'setup');toast('프리시즌 테스트 완료 — 시즌 내내 보너스');save()}
 function openDev(){
   const S=G.season;if(!S||S.tier!=='f1'){toast('차량 개발은 F1 팀에서 할 수 있어요');return}
   tip('dev');
@@ -5224,7 +5300,7 @@ async function raceWeek(){
   const pr=C.profile(W.rid);const pct=v=>Math.round(v*100);
   let fit='';
   if(S.tier==='f1'){const arr=G.f1.teams.map(t=>[t.id,C.carRating(G,t.id,W.rid)]).sort((a,b)=>b[1]-a[1]);const rk=arr.findIndex(x=>x[0]===S.team.id)+1;fit=`<div class="myBar">이 서킷에서 우리 차 예상 경쟁력: <b style="color:var(--gold)">${rk}위</b> / 11팀</div>`}
-  $('#rBody').innerHTML=`${carArt()?`<div class="carShow">${carArt({view:'three',wet:W.weather==='start'})}</div>`:''}<div class="myBar" style="flex-direction:column;align-items:flex-start;gap:4px"><b class="disp" style="font-size:18px">${esc(tr.n)} · ${esc(tr.city||'')}</b><span style="color:var(--dim);font-size:12px">${esc(S.n)} · ${typeN} 서킷 · ${tr.laps}랩 · 타이어 마모 ${tr.deg>1.15?'높음':tr.deg<0.85?'낮음':'보통'} · 추월 ${tr.ovt>0.6?'쉬움':tr.ovt<0.3?'매우 어려움':'보통'}${tr.night?' · 나이트 레이스':''}${tr.nat===G.d.nat?' · 홈 레이스!':''}</span></div>
+  $('#rBody').innerHTML=`${carArt()?`<div class="carShow">${carArt({view:'three',wet:W.weather==='start'})}</div>`:''}<div class="myBar" style="flex-direction:column;align-items:flex-start;gap:4px"><b class="disp" style="font-size:18px">${esc(tr.n)} · ${esc(tr.city||'')}</b><span style="color:var(--dim);font-size:12px">${esc(S.n)} · ${typeN} 서킷 · ${tr.laps}랩 · 타이어 마모 ${tr.deg>1.15?'높음':tr.deg<0.85?'낮음':'보통'} · 추월 ${tr.ovt>0.6?'쉬움':tr.ovt<0.3?'매우 어려움':'보통'}${tr.night?' · 나이트 레이스':''}${tr.nat===G.d.nat?' · 홈 레이스!':''}</span>${(tr.tags||[]).length?`<div class="chipRow" style="margin-top:4px">${tr.tags.map(t=>`<span class="chip">${TAGN[t]?TAGN[t][0]:t}</span>`).join('')}</div><span style="color:var(--dim);font-size:11px">${tr.tags.map(t=>TAGN[t]?TAGN[t][1]:'').filter(Boolean).join(' · ')}</span>`:''}</div>${W.prep?`<div class="myBar">사전 준비 ×${W.prep}: 셋업 +${W.prep*7} · 트랙 지식 +${W.prep*5} · 예선 보너스</div>`:''}${W.simBoost?'<div class="myBar">팩토리 시뮬레이터: 셋업 +12 · 트랙 지식 +8</div>':''}${W.testFx&&Object.keys(W.testFx).length?`<div class="myBar">프리시즌 테스트 성과: ${W.testFx.know?'롱런 데이터 (트랙 지식 +5)':W.testFx.q?'퀄리 시뮬레이션 (예선 보너스)':'셋업 베이스라인 (셋업 +6)'}</div>`:''}
     <div class="sec">날씨 예보</div><div class="wx">${['fp','q','race'].map(k=>`<div class="${W.fc[k]==='heavy'?'heavy':W.fc[k]==='light'||W.fc[k]==='change'?'rain':''}">${{fp:'프랙티스',q:'예선',race:'결승'}[k]}<b>${WXN[W.fc[k]]}</b>노면 ${W.temp[k]}°C</div>`).join('')}</div>
     <div class="sec">서킷 특성</div><div class="prof"><span>파워</span><span class="tr"><i style="width:${pct(pr.power)*1.8}%"></i></span><b>${pct(pr.power)}</b><span>다운포스</span><span class="tr"><i style="width:${pct(pr.df)*1.8}%"></i></span><b>${pct(pr.df)}</b><span>기계적 그립</span><span class="tr"><i style="width:${pct(pr.mech)*1.8}%"></i></span><b>${pct(pr.mech)}</b><span>브레이크</span><span class="tr"><i style="width:${pct(pr.brake)*1.8}%"></i></span><b>${pct(pr.brake)}</b></div>
     ${fit}
@@ -5468,6 +5544,7 @@ function sessStrip(i){const el=$('#rSess');if(!el||!W||!W.sessions) return;el.in
 function addBody(h){const b=$('#rBody');b.insertAdjacentHTML('beforeend',h);b.scrollTop=b.scrollHeight}
 function footChoice(q,opts,auto){
   if(auto!=null&&wmAuto()){const o=opts.find(x=>x.id===String(auto))||opts[0];if(opts.length>1) addBody(`<div class="ln"><span class="lp">AUTO</span>${esc(String(q).replace(/<[^>]+>/g,''))} → ${esc(o.l)}</div>`);return Promise.resolve(o.id)}
+  HAP.tap('med');
   return new Promise(r=>{$('#rFoot').innerHTML=`<div class="dec gut"><div class="q">${q}</div><div class="opts">${opts.map(o=>`<button data-o="${o.id}" class="${o.rec?'rec':''}">${esc(o.l)}${o.s?`<br><small style="font-weight:400;color:var(--dim);font-size:11px">${esc(o.s)}</small>`:''}</button>`).join('')}</div></div>`;
     $('#rFoot').querySelectorAll('button').forEach(b=>b.onclick=()=>{SFX.click();$('#rFoot').innerHTML='';r(b.dataset.o)})});
 }
@@ -5531,7 +5608,7 @@ async function runRace(i){
   await sleep(WM==='hl'?300:1300);
   for(let k=0;k<5;k++){await sleep(WM==='hl'?160:420);L.children[k].classList.add('on');if(R3V) R3V.lights(k+1);SFX.beep()}
   SFX.bgmInt(1);
-  await sleep((WM==='hl'?200:600)+Math.random()*900);[...L.children].forEach(x=>x.classList.remove('on'));SFX.go();if(R3V){R3V.lights(0);R3V.hold(false)}hudTxt("IT'S LIGHTS OUT!");setTimeout(()=>hudTxt('LIVE · '+(W.tr.n||'')),4000);setTimeout(()=>L.remove(),600);
+  await sleep((WM==='hl'?200:600)+Math.random()*900);[...L.children].forEach(x=>x.classList.remove('on'));SFX.go();HAP.tap('go');if(R3V){R3V.lights(0);R3V.hold(false)}hudTxt("IT'S LIGHTS OUT!");setTimeout(()=>hudTxt('LIVE · '+(W.tr.n||'')),4000);setTimeout(()=>L.remove(),600);
 
   $('#rBody').insertAdjacentHTML('beforeend',`<div class="bcap" id="cap"><span class="lp">LAP 1</span><b>라이트 아웃! 레이스 시작!</b></div><div class="tower" id="tower"></div><div class="map"><span class="mlab">${esc(W.tr.n)}</span>${trackSVG(W.rid)}</div><div class="myBar" id="myBar"></div><div class="sec" style="margin-top:8px">중계 기록</div><div class="feed" id="feed"></div>`);
   mapInit();
@@ -5544,7 +5621,7 @@ async function runRace(i){
       const imp=l.pri>=2?2:(l.pri>=1||/radio|pen_me/.test(l.k))?1:/_me$|_me_/.test(l.k)?0.5:0;
       if(WM==='hl'&&imp===0) continue;
       dwell=Math.max(dwell,imp>=2?2000:imp>=1?1300:imp>0?(WM==='hl'?0:700):(WM==='hl'?0:260));
-      f.insertAdjacentHTML('afterbegin',`<div class="ln ${l.k==='talent'?'tal':l.k.startsWith('radio')?'radio':l.pri>=2?'p2':l.pri?'p1':''}"><span class="lp">L${l.lap}</span>${esc(l.t)}</div>`);if(f.children.length>40) f.lastChild.remove();capSet(l);SFX.line(l.k);if(l.k==='overtake_me') await overtakeCut(RACE);else if(l.k==='pit_me') await pitCut(RACE,l,false);else if(l.k==='pen_serve'&&!RACE.lines.slice(shown,shown+3).some(x=>x.k==='pit_me')) await pitCut(RACE,l,true)}
+      f.insertAdjacentHTML('afterbegin',`<div class="ln ${l.k==='talent'?'tal':l.k.startsWith('radio')?'radio':l.pri>=2?'p2':l.pri?'p1':''}"><span class="lp">L${l.lap}</span>${esc(l.t)}</div>`);if(f.children.length>40) f.lastChild.remove();capSet(l);SFX.line(l.k);if(l.k==='overtake_me'||l.k==='overtaken_me'||/collision|dnf_me/.test(l.k)) HAP.tap('light');if(l.k==='overtake_me') await overtakeCut(RACE);else if(l.k==='pit_me') await pitCut(RACE,l,false);else if(l.k==='pen_serve'&&!RACE.lines.slice(shown,shown+3).some(x=>x.k==='pit_me')) await pitCut(RACE,l,true)}
     while(RACE.cut.length){const t=RACE.cut.shift();const lv=G.d.tal[t.id]||1;await cutin(t.rar==='U'&&t.evo?t.evo[lv-1].n:t.n,'TALENT')}
     drawTower();
     if(RACE.w>0.3) SFX.rainOn();else SFX.rainOff();
@@ -5617,7 +5694,7 @@ async function raceResult(out,rc){
     ${out.ban?'<div class="ln p2"><span class="lp">FIA</span>페널티 포인트 12점 누적! 다음 경기 출전 정지.</div>':''}
     ${teleHTML()}
     ${out.myPits&&out.myPits.length?`<div class="fxline">${out.myPits.map(p=>`<span class="fx ${p.inc?'dn':p.t<C.PIT_BASE[S.tier]*0.95?'up':''}">L${p.lap} 피트 ${p.t.toFixed(2)}초${p.inc==='slow'?' 휠 문제':p.inc==='unsafe'?' 언세이프':p.inc==='stack'?' 더블 스택':''}</span>`).join('')}${out.fastPit?'<span class="fx g">최단 피트스톱 상! 크루 유대 +3</span>':out.fastPitAll?`<span class="fx">최단 피트스톱 ${out.fastPitAll.t.toFixed(2)}초</span>`:''}</div>`:''}`;
-  if(out.pos===1&&!out.dnf){SFX.fanfare();await cutin('승리!','WINNER')}else if(out.pos<=3&&!out.dnf) SFX.fanfare();
+  if(out.pos===1&&!out.dnf){SFX.fanfare();HAP.tap('win');await cutin('승리!','WINNER')}else if(out.pos<=3&&!out.dnf){SFX.fanfare();HAP.tap('win')}
   {const gain=(RACE.me.grid||0)-out.pos;if(!out.dnf&&(gain>=5||(out.pos===1&&(RACE.me.grid||1)>=4))&&!rc.sprint){G.d.fans+=Math.round(5000*(S.tier==='f1'?3:1));G.coinsEarned=(G.coinsEarned||0)+20;G.d.rec.dotd=(G.d.rec.dotd||0)+1;toast(`드라이버 오브 더 데이! 팬 투표 1위 · 코인 +20`);SFX.chime()}}
   if(out.beatLegend) await cutin('전설을 넘다','LEGEND');
   await footChoice(out.dnf?'다음엔 반드시…':'계속',[{id:'ok',l:'계속'}]);
@@ -5723,7 +5800,7 @@ function hof(){
 }
 function settings(){
   const code=G?btoa(unescape(encodeURIComponent(JSON.stringify(G)))):'';
-  modal(`<h2>설정</h2><div class="choices"><button class="ch" data-act="spd">중계 속도: ${sp()===1?'보통':sp()===2?'빠르게':'매우 빠르게'}</button><button class="ch" data-act="snd">사운드: ${meta.settings.sound===0?'끔':'켬'}</button><button class="ch" data-act="vol">음량: ${meta.settings.vol==null?60:meta.settings.vol}%</button><button class="ch" data-act="mvol">음악: ${meta.settings.music==null?70:meta.settings.music}%</button><button class="ch" data-act="r3Tog">3D 중계·위닝 라이브: ${meta.settings.r3===0?'끔':'켬'}</button><button class="ch" data-act="fpsTog">중계 프레임: ${(meta.settings.fps||30)}fps${meta.settings.eco?' (절전 중 30)':''}</button><button class="ch" data-act="ecoTog">절전 모드 (발열·배터리): ${meta.settings.eco?'켬 — 3D 낮음·30fps·캐릭터 움직임 끔':'끔'}</button><button class="ch" data-act="r3q">3D 그래픽 품질: ${['낮음 (배터리 절약)','보통','높음 (그림자·고해상도)'][meta.settings.r3q==null?2:meta.settings.r3q]}</button><button class="ch" data-act="illTog">그림체: ${meta.settings.ill===0?'코드 일러스트(표정·포즈 다양)':'손그림 일러스트'}</button><button class="ch" data-act="l2Tog">캐릭터 움직임 (Live2D식): ${meta.settings.l2===0?'끔':'켬'}</button><button class="ch" data-act="epiTog">애니 연출 (다음 화 예고): ${meta.settings.epi===0?'끔':'켬'}</button><button class="ch" data-act="tipsOn">튜토리얼 다시 보기${meta.settings.tips===0?' (현재 꺼짐)':''}</button></div>
+  modal(`<h2>설정</h2><div class="choices"><button class="ch" data-act="spd">중계 속도: ${sp()===1?'보통':sp()===2?'빠르게':'매우 빠르게'}</button><button class="ch" data-act="snd">사운드: ${meta.settings.sound===0?'끔':'켬'}</button><button class="ch" data-act="vol">음량: ${meta.settings.vol==null?60:meta.settings.vol}%</button><button class="ch" data-act="mvol">음악: ${meta.settings.music==null?70:meta.settings.music}%</button><button class="ch" data-act="hapTog">진동 (결정·스타트·추월): ${meta.settings.haptic===0?'끔':'켬'}</button><button class="ch" data-act="r3Tog">3D 중계·위닝 라이브: ${meta.settings.r3===0?'끔':'켬'}</button><button class="ch" data-act="fpsTog">중계 프레임: ${(meta.settings.fps||30)}fps${meta.settings.eco?' (절전 중 30)':''}</button><button class="ch" data-act="ecoTog">절전 모드 (발열·배터리): ${meta.settings.eco?'켬 — 3D 낮음·30fps·캐릭터 움직임 끔':'끔'}</button><button class="ch" data-act="r3q">3D 그래픽 품질: ${['낮음 (배터리 절약)','보통','높음 (그림자·고해상도)'][meta.settings.r3q==null?2:meta.settings.r3q]}</button><button class="ch" data-act="illTog">그림체: ${meta.settings.ill===0?'코드 일러스트(표정·포즈 다양)':'손그림 일러스트'}</button><button class="ch" data-act="l2Tog">캐릭터 움직임 (Live2D식): ${meta.settings.l2===0?'끔':'켬'}</button><button class="ch" data-act="epiTog">애니 연출 (다음 화 예고): ${meta.settings.epi===0?'끔':'켬'}</button><button class="ch" data-act="tipsOn">튜토리얼 다시 보기${meta.settings.tips===0?' (현재 꺼짐)':''}</button></div>
   <p style="font-size:12px;color:var(--dim)">진행은 자동 저장돼요. 저장 코드를 복사해 두면 다른 곳에서 이어할 수 있어요.</p>
   <textarea id="codeBox" style="width:100%;min-height:70px;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:8px;font:11px monospace;padding:8px">${code}</textarea>
   <button class="btn sub" data-act="copy">저장 코드 복사</button><button class="btn sub" data-act="import">붙여 넣은 코드 불러오기</button>
@@ -5774,6 +5851,7 @@ document.addEventListener('click',async ev=>{
     case 'r3Tog':meta.settings.r3=meta.settings.r3===0?1:0;saveMeta();settings();break;
     case 'illTog':meta.settings.ill=meta.settings.ill===0?1:0;saveMeta();settings();try{renderTitle()}catch(e){};break;
     case 'l2Tog':meta.settings.l2=meta.settings.l2===0?1:0;saveMeta();l2apply();settings();break;
+    case 'hapTog':meta.settings.haptic=meta.settings.haptic===0?1:0;saveMeta();HAP.tap('med');settings();break;
     case 'fpsTog':meta.settings.fps=(meta.settings.fps||30)===30?60:30;saveMeta();if(R3V) R3V.setFps(effFps());settings();break;
     case 'ecoTog':meta.settings.eco=meta.settings.eco?0:1;saveMeta();l2apply();if(R3V) R3V.setFps(effFps());settings();break;
     case 'epiTog':meta.settings.epi=meta.settings.epi===0?1:0;saveMeta();settings();break;
@@ -5789,6 +5867,9 @@ document.addEventListener('click',async ev=>{
     case 'learn':if(C.learn(G,b.dataset.id)){toast('재능 습득!');save();sdraw&&sdraw();renderHub()}break;
     case 'team':openTeam();break;
     case 'dev':openDev();break;
+    case 'shop':openShop();break;
+    case 'cal':openCal();break;
+    case 'buy':{const r=C.buy(G,b.dataset.id);if(r.ok){SFX.chime();toast(`구매 완료 · ${r.msg}`);save();try{renderHub()}catch(e){}if(sdraw) sdraw()}else toast(r.msg||'구매 불가');break}
     case 'setDev':{const r=C.setDev(G,b.dataset.k);if(r.ok){toast('개발 방향을 정했어요');save();sdraw&&sdraw()}else toast(r.why==='short'?'팀 후보 부품만 고를 수 있어요':'발언권이 부족해요');break}
     case 'sugDev':{const r=C.suggestDev(G,b.dataset.k);if(r.ok) toast(r.accepted?'의견이 채택됐다! 개발 방향이 바뀐다':'팀이 의견을 받아들이지 않았다');save();sdraw&&sdraw();break}
     case 'guide':openGuide();break;
