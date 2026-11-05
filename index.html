@@ -85,7 +85,7 @@ button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
 .chip{font-size:10.5px;padding:2px 7px;border-radius:4px;background:#000a;border:1px solid #ffffff22;white-space:nowrap}
 .chip.gold{color:var(--gold);border-color:#ffc83d55}.chip.cyan{color:var(--cyan);border-color:#3ee0ff55}.chip.red{color:#ff8f96;border-color:#ff3b4766}
 #hPlate{max-width:calc(60% - 26px)}#hPlate .nm{font-size:20px;word-break:keep-all;white-space:normal!important;overflow:visible!important;text-overflow:clip!important}#hPlate .nm.long{font-size:17px}
-.nextCard{position:absolute;right:10px;top:10px;z-index:4;width:40%;padding:8px 10px;border-radius:10px;background:#0b0d14cc;border:1px solid var(--line);font-size:11.5px;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.nextCard{position:absolute;right:10px;top:10px;z-index:4;width:40%;padding:8px 10px;border-radius:10px;background:#0b0d14e8;border:1px solid var(--line);font-size:11.5px}
 .nextCard b{display:block;font-family:var(--f-display);font-size:15px;line-height:1.15}
 .nextCard .cd{font-family:var(--f-display);font-size:26px;color:var(--red);line-height:1}
 .meters{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-block:10px 4px}
@@ -401,7 +401,8 @@ body.nol2 .hero::before{opacity:.14}
 .chrome.gold{background:linear-gradient(180deg,#fffbe8 0%,#ffe9a0 34%,#d6a23a 48%,#5a3410 51%,#a8701e 62%,#ffe08a 80%,#fffbe8 100%);-webkit-background-clip:text;background-clip:text;filter:drop-shadow(3px 3px 0 #7a1020) drop-shadow(0 0 14px #ffc83d88)}
 .glint{position:absolute;inset:0;pointer-events:none;overflow:hidden}
 .glint::after{content:'';position:absolute;top:-20%;bottom:-20%;width:18%;left:-30%;background:linear-gradient(100deg,transparent,#ffffffcc 45%,#fff 50%,#ffffffcc 55%,transparent);transform:skewX(-20deg);mix-blend-mode:overlay;animation:glint 4.2s ease-in-out infinite}
-@keyframes glint{0%,62%{left:-30%}88%,100%{left:130%}}
+body.eco .glint::after,body.eco .lflare,body.eco .r3hud::before,body.eco .tvcam .live::before{animation:none!important}
+@keyframes glint{0%,62%{transform:translateX(0) skewX(-20deg)}88%,100%{transform:translateX(890%) skewX(-20deg)}}
 .lflare{position:absolute;width:130px;height:130px;margin:-65px 0 0 -65px;pointer-events:none;z-index:3;mix-blend-mode:screen;border-radius:50%;
  background:radial-gradient(circle,#fff 0 3%,#fffbe0e0 6%,#ffd98a66 15%,#ff9a5a22 28%,transparent 46%),conic-gradient(from 8deg,transparent 0 11%,#ffffff70 12.5%,transparent 14% 36%,#ffffff55 37.5%,transparent 39% 61%,#ffffff70 62.5%,transparent 64% 86%,#ffffff55 87.5%,transparent 89%);animation:flareP 3.4s ease-in-out infinite}
 .lflare::before,.lflare::after{content:'';position:absolute;border-radius:50%;mix-blend-mode:screen}
@@ -2658,7 +2659,7 @@ function strip(pts,nrm,o0,o1,y0,y1,i0,i1,vs){var P=[],U=[],I=[],acc=0,n=pts.leng
 /* ---------------- post-processing: bloom + speed blur + grade ---------------- */
 function Post(rd,W,H,q){var self=this;this.rd=rd;this.q=q;var pr=rd.getPixelRatio();
   var hf=rd.capabilities.isWebGL2&&rd.extensions.has('EXT_color_buffer_float');var type=hf?T.HalfFloatType:T.UnsignedByteType;
-  function rt(w,h,ms){var t=new T.WebGLRenderTarget(Math.max(1,w),Math.max(1,h),{type:type,depthBuffer:!!ms});if(ms&&rd.capabilities.isWebGL2) t.samples=q>=2?4:2;return t}
+  function rt(w,h,ms){var t=new T.WebGLRenderTarget(Math.max(1,w),Math.max(1,h),{type:type,depthBuffer:!!ms});if(ms&&rd.capabilities.isWebGL2) t.samples=2;return t}
   this.size=function(w,h){pr=rd.getPixelRatio();var fw=Math.round(w*pr),fh=Math.round(h*pr);[self.main,self.b1,self.b2,self.c1,self.c2].forEach(function(t){if(t) t.dispose()});self.main=rt(fw,fh,true);self.b1=rt(fw>>2,fh>>2);self.b2=rt(fw>>2,fh>>2);self.c1=rt(fw>>3,fh>>3);self.c2=rt(fw>>3,fh>>3);self.res=[fw,fh]};
   this.size(W,H);this.hdr=hf;
   var cam=new T.OrthographicCamera(-1,1,1,-1,0,1),geo=new T.PlaneGeometry(2,2),scn=new T.Scene(),quad=new T.Mesh(geo);quad.frustumCulled=false;scn.add(quad);
@@ -2685,7 +2686,7 @@ function Post(rd,W,H,q){var self=this;this.rd=rd;this.q=q;var pr=rd.getPixelRati
 /* ---------------- race broadcast ---------------- */
 function race(host,o){
   var W=host.clientWidth||360,H=host.clientHeight||220,Q=o.q==null?2:o.q;
-  var rd=new T.WebGLRenderer({antialias:Q>=1,powerPreference:'high-performance'});rd.setPixelRatio(Math.min(window.devicePixelRatio||1,Q>=2?1.75:1.25));rd.setSize(W,H);
+  var rd=new T.WebGLRenderer({antialias:Q>=1,powerPreference:'high-performance'});rd.setPixelRatio(Math.min(window.devicePixelRatio||1,Q>=2?1.5:1.15));rd.setSize(W,H);
   rd.outputEncoding=T.sRGBEncoding;rd.toneMapping=T.ACESFilmicToneMapping;rd.toneMappingExposure=o.night?1.15:1.0;rd.shadowMap.enabled=Q>=1;rd.shadowMap.type=T.PCFSoftShadowMap;
   rd.domElement.className='r3c';host.appendChild(rd.domElement);
   var PP=null;try{if(Q>=1&&o.post!==false){PP=new Post(rd,W,H,Q);rd.toneMapping=T.NoToneMapping}}catch(e){PP=null}
@@ -2701,7 +2702,7 @@ function race(host,o){
   /* lights */
   var hemi=new T.HemisphereLight(night?0x8aa0ff:(sky==='sunset'?0xffd8c0:0xe8f2ff),night?0x202838:0x56603e,night?0.85:(wet?0.95:0.75));sc.add(hemi);
   var sun=new T.DirectionalLight(night?0xcfd8ff:(sky==='sunset'?0xffb070:0xfff2dc),night?0.55:(wet?0.45:(sky==='sunset'?1.6:2.1)));var SUND=new T.Vector3(-0.55,sky==='sunset'?0.32:0.75,-0.4).normalize();sc.add(sun);sc.add(sun.target);
-  sun.castShadow=Q>=1;sun.shadow.mapSize.set(Q>=2?2048:1024,Q>=2?2048:1024);var shc=sun.shadow.camera;shc.left=-45;shc.right=45;shc.top=45;shc.bottom=-45;shc.near=1;shc.far=400;sun.shadow.bias=-0.0006;sun.shadow.normalBias=0.03;
+  sun.castShadow=Q>=1;sun.shadow.mapSize.set(Q>=2?1536:1024,Q>=2?1536:1024);var shc=sun.shadow.camera;shc.left=-45;shc.right=45;shc.top=45;shc.bottom=-45;shc.near=1;shc.far=400;sun.shadow.bias=-0.0006;sun.shadow.normalBias=0.03;
   if(!night&&!wet){var sunS=new T.Sprite(new T.SpriteMaterial({map:glowTex(),color:sky==='sunset'?0xffa060:0xfff4d8,fog:false,transparent:true,depthWrite:false,blending:T.AdditiveBlending}));sunS.position.copy(SUND).multiplyScalar(4600);sunS.scale.set(1400,1400,1);sc.add(sunS)}
   var pmrem=new T.PMREMGenerator(rd);function buildEnv(){try{var es=new T.Scene();var m=new T.Mesh(new T.SphereGeometry(100,32,16),new T.MeshBasicMaterial({map:skyTex,side:T.BackSide}));es.add(m);var gd=new T.Mesh(new T.CircleGeometry(100,24),new T.MeshBasicMaterial({color:night?0x101820:0x445040}));gd.rotation.x=-Math.PI/2;gd.position.y=-8;es.add(gd);var rt=pmrem.fromScene(es,0.04);sc.environment=rt.texture}catch(e){}}
   /* track */
@@ -2867,9 +2868,11 @@ function race(host,o){
   function update(state){st=state;state.list.forEach(function(c,ix){var e=cars[c.id];if(!e){var m=makeCar({c1:c.c1,c2:c.c2,num:c.num,me:c.me,helm:c.me?'#ffd23f':c.c2,tyre:c.tyre});sc.add(m);e=cars[c.id]={m:m,g:Math.min(c.gap,LAP*0.98),lane:0,s:0,ps:0,yaw:0,roll:0,pitch:0,wa:0}}
       e.tg=c.gap>=LAP?(c.gap%LAP):c.gap;e.dnf=c.dnf;e.me=c.me;e.name=c.name;e.pos=c.pos;e.drs=c.drs;if(c.tyre&&c.tyre!==e.tyre){e.tyre=c.tyre;var tmt=carMats().tyre[c.tyre];if(tmt) e.m.userData.wheels.forEach(function(w){w.tyre.material=tmt;if(w.rims&&typeof GPT3!=='undefined') w.rims.forEach(function(r){r.material.map=wheelTex(c.tyre);r.material.needsUpdate=true})})}});
     if(state.sc&&!scar){scar=makeCar({c1:'#f4b400',c2:'#1a1a1a',num:'SC',helm:'#222'});var lb=new T.Mesh(BX(.9,.12,.25),new T.MeshBasicMaterial({color:0xffa000}));lb.position.y=1.0;scar.add(lb);scar.userData.bar=lb;sc.add(scar)}if(!state.sc&&scar){sc.remove(scar);scar=null}}
+  var FPS=o.fps||30,lastR=0,vis=true,STATS={n:0,ms:0,skip:0};var io=window.IntersectionObserver?new IntersectionObserver(function(es){vis=es[0].isIntersecting},{threshold:0.02}):null;if(io) io.observe(host);
   var tau=0,camMode=0,camT=0,tvSpot=null,running=true,last=performance.now(),first=true,camP=new T.Vector3(),camL=new T.Vector3(),shake=0,perf=[],qDrop=0,manual=false,focusId=null,slow=1,cine=null,startT=-1,startT0=0,CREW=null;
   var CAMD=[7,6,5,5,4],lastMode=-1;
-  function frame(now){if(!running) return;requestAnimationFrame(frame);if(!host.isConnected||!host.getClientRects().length){last=now;return}var dt=Math.min(0.05,(now-last)/1000);last=now;var rdt=dt;dt*=slow;
+  /* 배터리: 기본 30fps 상한(설정으로 60), 호스트가 화면 밖이거나 숨겨지면 렌더 생략. 건너뛴 프레임의 시간은 다음 프레임 dt에 합산된다 */
+  function frame(now){if(!running) return;requestAnimationFrame(frame);if(!host.isConnected||!vis){last=now;STATS.skip++;return}if(FPS<58&&now-lastR<1000/FPS-3) return;lastR=now;var tf0=performance.now();var dt=Math.min(0.05,(now-last)/1000);last=now;var rdt=dt;dt*=slow;
     perf.push(dt);if(perf.length>90){var avg=perf.reduce(function(a,b){return a+b},0)/perf.length;perf=[];if(avg>0.034&&Q>0&&qDrop<2){qDrop++;setQ(Q-1)}}
     var spd=st.sc?0.55:1;if(!holdOn){ramp=Math.min(1,ramp+dt/2.6);tau+=dt*spd*(0.12+0.88*ramp)}var arr=[];
     for(var id in cars){var e=cars[id];if(e.dnf){e.m.visible=false;continue}e.m.visible=true;if(cine&&e===cine.e) continue;if(first||holdOn) e.g=e.tg;var dg=(e.tg-e.g)*Math.min(1,dt*0.8);dg=Math.max(-dt*0.35,Math.min(dt*0.35,dg));if(Math.abs(e.tg-e.g)>LAP*0.5) dg=e.tg-e.g;e.g+=dg;e.ps=e.s;
@@ -2916,8 +2919,8 @@ function race(host,o){
     skyM.position.x=cam.position.x;skyM.position.z=cam.position.z;cap.position.x=cam.position.x;cap.position.z=cam.position.z;
     var spdN=Math.max(0,((me.v||0)-45)/50);var blurAmt=camMode===1||camMode===3?spdN*0.25:camMode===2||camMode===4?spdN*1.1:spdN*0.75;
     if(PP){PP.comp.uniforms.bs.value=night?0.9:(wet?0.4:0.5);PP.render(sc,cam,blurAmt,night?1.15:1.0,now)}else rd.render(sc,cam);
-    var html='',mi=arr.indexOf(me);[mi-1,mi,mi+1].forEach(function(k3){var e3=arr[k3];if(!e3||!e3.m.visible) return;if(e3===me&&camMode!==1&&camMode!==3) return;var p3=e3.m.position.clone();p3.y+=1.9;p3.project(cam);if(p3.z>1||p3.z<-1) return;var x3=(p3.x*.5+.5)*W,y3=(-p3.y*.5+.5)*H;if(x3<0||x3>W||y3<0||y3>H) return;html+='<span class="'+(e3===me?'me':'')+'" style="left:'+x3.toFixed(0)+'px;top:'+y3.toFixed(0)+'px">P'+(e3.pos||'')+' '+(e3.name||'')+'</span>'});lab.innerHTML=html}
-  function setQ(q2){Q=q2;rd.setPixelRatio(Math.min(window.devicePixelRatio||1,Q>=2?1.75:Q>=1?1.25:1));rd.setSize(W,H);if(Q<1&&PP){PP.dispose();PP=null;rd.toneMapping=T.ACESFilmicToneMapping;sc.traverse(function(x){if(x.material){(Array.isArray(x.material)?x.material:[x.material]).forEach(function(m){m.needsUpdate=true})}})}else if(PP) PP.size(W,H);if(Q<1&&rd.shadowMap.enabled){rd.shadowMap.enabled=false;sun.castShadow=false;sc.traverse(function(x){if(x.material){(Array.isArray(x.material)?x.material:[x.material]).forEach(function(m){m.needsUpdate=true})}})}}
+    var html='',mi=arr.indexOf(me);[mi-1,mi,mi+1].forEach(function(k3){var e3=arr[k3];if(!e3||!e3.m.visible) return;if(e3===me&&camMode!==1&&camMode!==3) return;var p3=e3.m.position.clone();p3.y+=1.9;p3.project(cam);if(p3.z>1||p3.z<-1) return;var x3=(p3.x*.5+.5)*W,y3=(-p3.y*.5+.5)*H;if(x3<0||x3>W||y3<0||y3>H) return;html+='<span class="'+(e3===me?'me':'')+'" style="left:'+x3.toFixed(0)+'px;top:'+y3.toFixed(0)+'px">P'+(e3.pos||'')+' '+(e3.name||'')+'</span>'});if(html!==lab._h){lab._h=html;lab.innerHTML=html}STATS.n++;STATS.ms+=performance.now()-tf0}
+  function setQ(q2){Q=q2;rd.setPixelRatio(Math.min(window.devicePixelRatio||1,Q>=2?1.5:Q>=1?1.15:1));rd.setSize(W,H);if(Q<1&&PP){PP.dispose();PP=null;rd.toneMapping=T.ACESFilmicToneMapping;sc.traverse(function(x){if(x.material){(Array.isArray(x.material)?x.material:[x.material]).forEach(function(m){m.needsUpdate=true})}})}else if(PP) PP.size(W,H);if(Q<1&&rd.shadowMap.enabled){rd.shadowMap.enabled=false;sun.castShadow=false;sc.traverse(function(x){if(x.material){(Array.isArray(x.material)?x.material:[x.material]).forEach(function(m){m.needsUpdate=true})}})}}
   requestAnimationFrame(frame);
   function resize(){W=host.clientWidth||W;H=host.clientHeight||H;rd.setSize(W,H);if(PP) PP.size(W,H);cam.aspect=W/H;cam.updateProjectionMatrix()}
   var ro=window.ResizeObserver?new ResizeObserver(resize):null;if(ro) ro.observe(host);
@@ -2925,12 +2928,12 @@ function race(host,o){
   return {update:update,cam:function(m){camMode=m;camT=0;tvSpot=null;manual=m!=null&&m>=0},auto:function(){manual=false},focus:function(id){focusId=id},lap:LAP,
     /* hold(true): 그리드에 정렬해 정지(라이트 시퀀스), hold(false): 출발 — 시뮬 위치로 2.6초에 걸쳐 가속하며 합류 */
     hold:function(on){if(on){holdOn=true;camMode=5;camT=0;manual=false;startT=-1;setLights(0)}else if(holdOn){holdOn=false;release();startT=0;startT0=performance.now();setLights(0)}},
-    lights:setLights,
+    lights:setLights,setFps:function(f){FPS=f||30},stats:function(){return STATS},
     /* pause(true): 선택지 대기 중 슬로모션(시뮬은 UI가 멈추지만 중계가 계속 달리는 것처럼 보이지 않게) */
     pause:function(on){slow=on?0.12:1},
     /* pitStop({dur,comp,inc,drive,onPhase}) → 컷신이 끝나면 resolve. 2D 모드나 이미 진행 중이면 즉시 resolve */
     pitStop:function(o){return new Promise(function(res){var me=null;for(var id in cars){if(cars[id].me&&!cars[id].dnf) me=cars[id]}if(!me||cine){res();return}cine={e:me,t:0,t0:performance.now(),dur:Math.max(0.6,(o&&o.dur)||2.5),o:o||{},done:res,phase:-1,swapped:false,camB:null}})},
-    dispose:function(){running=false;if(ro) ro.disconnect();try{if(PP) PP.dispose();pmrem.dispose();rd.dispose();rd.forceContextLoss()}catch(e){}rd.domElement.remove();lab.remove();sc.traverse(function(x){if(x.geometry&&x.geometry!==GEO.body&&!(GEO&&Object.values(GEO).indexOf(x.geometry)>=0)) x.geometry.dispose()})}};
+    dispose:function(){running=false;if(ro) ro.disconnect();if(io) io.disconnect();try{if(PP) PP.dispose();pmrem.dispose();rd.dispose();rd.forceContextLoss()}catch(e){}rd.domElement.remove();lab.remove();sc.traverse(function(x){if(x.geometry&&x.geometry!==GEO.body&&!(GEO&&Object.values(GEO).indexOf(x.geometry)>=0)) x.geometry.dispose()})}};
 }
 /* ---------- winning live (podium ceremony) ---------- */
 function loadTex(src){return new Promise(function(res){var im=new Image();im.onload=function(){var t=new T.Texture(im);t.encoding=T.sRGBEncoding;t.needsUpdate=true;res({t:t,w:im.width,h:im.height})};im.onerror=function(){res(null)};im.src=src})}
@@ -3083,16 +3086,16 @@ function Engine(ac,dest){
   function newTrack(name,o){var def=TR[name];if(!def) return null;var b=bus();return {name:name,def:def,g:b.g,s:b.s,step:0,next:ac.currentTime+0.06,r:rng(def.seed*7919+((Date.now()/1000)|0)),k:o&&o.inten!=null?o.inten:1,li:null}}
   function stepOnce(T,until){var cnt=0;while(T.next<until&&cnt++<64){var dt=60/T.def.bpm/4,bar=Math.floor(T.step/16),s=T.step%16;if(bar>=T.def.len){var ls=T.def.loopStart||0;T.step=ls*16;bar=ls;s=0}
       T.k+=(E.tInten-T.k)*0.06;try{T.def.on(T,bar,s,T.next,dt)}catch(e){if(T.strict) throw e}T.step++;T.next+=dt}}
-  function tick(){if(ac.state!=='running') return;var now=ac.currentTime;if(!E.cur&&E.want) start(E.want,E.wantO);var T=E.cur;if(!T) return;if(T.next<now-0.25) T.next=now+0.05;stepOnce(T,now+0.16)}
+  function tick(){if(ac.state!=='running') return;var now=ac.currentTime;if(!E.cur&&E.want) start(E.want,E.wantO);var T=E.cur;if(!T) return;if(T.next<now-0.25) T.next=now+0.05;stepOnce(T,now+0.2)}
   function fadeOut(T,f){var t=ac.currentTime;try{T.g.gain.cancelScheduledValues(t);T.g.gain.setValueAtTime(T.g.gain.value,t);T.g.gain.linearRampToValueAtTime(0.0001,t+f);T.s.gain.cancelScheduledValues(t);T.s.gain.setValueAtTime(T.s.gain.value,t);T.s.gain.linearRampToValueAtTime(0.0001,t+f)}catch(e){}setTimeout(function(){try{T.g.disconnect();T.s.disconnect()}catch(e){}},f*1000+300)}
   function start(name,o){var T=newTrack(name,o);if(!T) return;var f=o&&o.fade!=null?o.fade:(o&&o.cut?0.25:1.2);if(E.cur) fadeOut(E.cur,o&&o.cut?0.3:Math.max(0.6,f*0.8));E.cur=T;E.tInten=T.k;var t=ac.currentTime;T.g.gain.setValueAtTime(0.0001,t);T.g.gain.linearRampToValueAtTime(1,t+f);T.s.gain.setValueAtTime(0.0001,t);T.s.gain.linearRampToValueAtTime(1,t+f);
-    if(!timer) timer=setInterval(tick,40)}
-  E.play=function(name,o){if(!TR[name]) return;E.want=name;E.wantO=o||{};if(o&&o.inten!=null) E.tInten=o.inten;if(E.cur&&E.cur.name===name) return;if(ac.state==='running') start(name,o);else if(!timer) timer=setInterval(tick,40)};
+    if(!timer) timer=setInterval(tick,60)}
+  E.play=function(name,o){if(!TR[name]) return;E.want=name;E.wantO=o||{};if(o&&o.inten!=null) E.tInten=o.inten;if(E.cur&&E.cur.name===name) return;if(ac.state==='running') start(name,o);else if(!timer) timer=setInterval(tick,60)};
   E.intensity=function(x){E.tInten=Math.max(0,Math.min(1,x))};
   /* stop: 지금 곡을 끄되 마지막 요청(last)은 기억 → 소리 설정을 다시 켜면 resume()이 이어 튼다 */
   E.remember=function(name,o){E.last=name;E.lastO=o||{}};
   E.stop=function(f){if(E.want){E.last=E.want;E.lastO=E.wantO}E.want=null;if(E.cur){fadeOut(E.cur,f==null?0.8:f);E.cur=null}};
-  E.resume=function(){if(!timer) timer=setInterval(tick,40);if(!E.cur&&!E.want&&E.last) E.play(E.last,E.lastO)};
+  E.resume=function(){if(!timer) timer=setInterval(tick,60);if(!E.cur&&!E.want&&E.last) E.play(E.last,E.lastO)};
   /* 오프라인 렌더(테스트·미리듣기): 처음부터 sec초를 한 번에 스케줄 */
   E.renderAll=function(name,sec,inten){var T=newTrack(name,{inten:inten==null?1:inten});if(!T) throw new Error('no track '+name);T.r=rng(T.def.seed);T.strict=true;E.cur=T;E.tInten=T.k;T.g.gain.value=1;T.s.gain.value=1;T.next=0.05;while(T.next<sec) stepOnce(T,sec)};
   return E}
@@ -5285,6 +5288,8 @@ async function raceWeek(){
 /* ---------- 3D broadcast ---------- */
 let R3V=null;const CAMN=['체이스 캠','TV 캠','T캠','헬리 캠','노즈 캠'];
 function r3On(){return typeof R3D!=='undefined'&&meta.settings.r3!==0&&R3D.ok()}
+function effQ(){return meta.settings.eco?0:(meta.settings.r3q==null?2:meta.settings.r3q)}
+function effFps(){return meta.settings.eco?30:(meta.settings.fps||30)}
 function r3Stop(){if(R3V){try{R3V.dispose()}catch(e){}R3V=null}const h=document.getElementById('rT3');if(h) h.innerHTML='';const hr=document.getElementById('rHero');if(hr) hr.classList.remove('r3','r3big')}
 function r3Num(c){if(c.me) return String(G.d.num||7);let h=0;for(const ch of String(c.id||c.name)) h=(h*31+ch.charCodeAt(0))>>>0;return String(2+h%97)}
 function r3State(R){const lead=R.order.find(c=>!c.dnf)||R.order[0];return {sc:!!(R.sc||R.vsc||R.red),list:R.order.map((c,i)=>{const tc=c.me?teamCols().c1:teamColor(c.team);return {id:c.id||c.name,name:String(c.name||'').split(' ').pop(),pos:i+1,me:!!c.me,dnf:!!c.dnf,gap:Math.max(0,(c.time||0)-(lead.time||0)),c1:tc,c2:c.me?(teamCols().c2&&teamCols().c2!==tc?'#ffffff':'#ffffff'):'#f2f2f6',num:r3Num(c),tyre:c.comp||'M'}})}}
@@ -5298,7 +5303,7 @@ function r3Venue(){const tr=W.tr,sc=tr.scene||'',nat=tr.nat||'',rid=W.rid||'';co
 function r3Path(){const mp=document.getElementById('mapPath');if(mp) return mp.getAttribute('d');try{const m=trackSVG(W.rid).match(/\sd="([^"]+)"/);return m?m[1]:null}catch(e){return null}}
 function r3Tick(R){if(!r3On()) return;const host=document.getElementById('rT3'),pth=R3V?null:r3Path();if(!host||!R||!R.order) return;
   if(!R3V&&pth){try{$('#rHero').classList.add('r3');host.innerHTML='<span class="r3hud">LIVE · '+esc(W.tr.n||'')+'</span><span class="r3cam" id="r3cam">AUTO · 디렉터</span><button class="r3big" id="r3big" aria-label="크게 보기">⤢</button>';
-    R3V=R3D.race(host,{venue:r3Venue(),path:pth,night:!!W.tr.night,wet:R.w>0.3,seed:hashS(W.rid),len:Math.max(1500,(W.tr.lap||80)*62),teamCols:r3Teams(),q:meta.settings.r3q==null?2:meta.settings.r3q});
+    R3V=R3D.race(host,{venue:r3Venue(),path:pth,night:!!W.tr.night,wet:R.w>0.3,seed:hashS(W.rid),len:Math.max(1500,(W.tr.lap||80)*62),teamCols:r3Teams(),q:effQ(),fps:effFps()});
     host.onclick=ev=>{if(!R3V) return;if(ev.target&&ev.target.id==='r3big'){ev.stopPropagation();$('#rHero').classList.toggle('r3big');return}R3V._m=(R3V._m==null?-1:R3V._m)+1;const c=document.getElementById('r3cam');if(R3V._m>4){R3V._m=null;R3V.auto();if(c) c.textContent='AUTO · 디렉터'}else{R3V.cam(R3V._m);if(c) c.textContent=CAMN[R3V._m]}}}catch(e){console.warn(e);meta.settings.r3=0;r3Stop();return}}
   if(R3V) R3V.update(r3State(R))}
 /* ---------- winning live ---------- */
@@ -5370,7 +5375,10 @@ window.addEventListener('deviceorientation',e=>{if(e.gamma==null) return;L2.gx=l
 function l2blink(el){el.classList.add('blink');setTimeout(()=>el.classList.remove('blink'),120)}
 function l2talk(root,ms){const el=(root||document).querySelector('.evArt .ch2');if(!el||document.body.classList.contains('nol2')) return;el.classList.add('talk');clearTimeout(el._tk);el._tk=setTimeout(()=>el.classList.remove('talk'),ms)}
 let l2last=0,l2pf=0,l2ema=16,l2iv=48;
-function l2loop(t){requestAnimationFrame(l2loop);const dt=t-l2pf;l2pf=t;if(dt>0&&dt<500){l2ema=l2ema*.95+dt*.05;l2iv=l2ema>24?95:l2ema>19?66:48}if(document.hidden||document.body.classList.contains('nol2')||t-l2last<l2iv) return;l2last=t;
+const PERF={l2ms:0,l2n:0};window.__loPerf=PERF;
+function l2loop(t){requestAnimationFrame(l2loop);const dt=t-l2pf;l2pf=t;if(dt>0&&dt<500){l2ema=l2ema*.95+dt*.05;l2iv=l2ema>24?95:l2ema>19?66:48}
+  // 배터리: 최근 입력(포인터/기울임)이 없으면 8Hz, 30초 넘게 없으면 4Hz로 숨쉬기만
+  const idle=t-Math.max(L2.touch,L2.gt);const iv=idle<2600?l2iv:idle>30000?250:120;if(document.hidden||document.body.classList.contains('nol2')||t-l2last<iv) return;l2last=t;const pf0=performance.now();
   const mod=!document.getElementById('modal').hidden?document.getElementById('modal'):null;
   const els=(mod||document).querySelectorAll(L2SEL);
   for(const el of els){if(!el.firstElementChild||!el.getClientRects().length) continue;
@@ -5383,9 +5391,9 @@ function l2loop(t){requestAnimationFrame(l2loop);const dt=t-l2pf;l2pf=t;if(dt>0&
     const w=t/3600*6.2832+s.ph,br=(1-Math.cos(w))/2,hs=Math.sin(w-.7),hb=Math.sin(t/4300*6.2832+s.ph-1.2);
     const st=el.style;st.setProperty('--lx',s.x.toFixed(3));st.setProperty('--ly',s.y.toFixed(3));st.setProperty('--b',br.toFixed(3));st.setProperty('--hs',hs.toFixed(3));st.setProperty('--hb',hb.toFixed(3));
     if(el.classList.contains('talk')) st.setProperty('--tk',(0.55+Math.abs(Math.sin(t/90))*0.85).toFixed(2));
-    if(t>s.nb){l2blink(el);if(Math.random()<.22) setTimeout(()=>l2blink(el),250);s.nb=t+2300+Math.random()*3800}}}
+    if(t>s.nb){l2blink(el);if(Math.random()<.22) setTimeout(()=>l2blink(el),250);s.nb=t+2300+Math.random()*3800}}PERF.l2ms+=performance.now()-pf0;PERF.l2n++}
 requestAnimationFrame(l2loop);
-function l2apply(){document.body.classList.toggle('nol2',meta.settings.l2===0)}
+function l2apply(){document.body.classList.toggle('nol2',meta.settings.l2===0||!!meta.settings.eco);document.body.classList.toggle('eco',!!meta.settings.eco)}
 /* ---------- 다음 화 예고 (90s anime next-episode card) ---------- */
 const EP_T={
  gen:['붉은 신호가 꺼질 때','0.1초의 벽','한계의 저편','빛보다 빠르게','엔진이 부르는 소리','브레이킹 포인트','바람을 읽는 자','슬립스트림 속으로','체커기를 향해','타이어가 말해 주는 것','다시 한 번, 풀 스로틀','코너 끝의 결의'],
@@ -5715,7 +5723,7 @@ function hof(){
 }
 function settings(){
   const code=G?btoa(unescape(encodeURIComponent(JSON.stringify(G)))):'';
-  modal(`<h2>설정</h2><div class="choices"><button class="ch" data-act="spd">중계 속도: ${sp()===1?'보통':sp()===2?'빠르게':'매우 빠르게'}</button><button class="ch" data-act="snd">사운드: ${meta.settings.sound===0?'끔':'켬'}</button><button class="ch" data-act="vol">음량: ${meta.settings.vol==null?60:meta.settings.vol}%</button><button class="ch" data-act="mvol">음악: ${meta.settings.music==null?70:meta.settings.music}%</button><button class="ch" data-act="r3Tog">3D 중계·위닝 라이브: ${meta.settings.r3===0?'끔':'켬'}</button><button class="ch" data-act="r3q">3D 그래픽 품질: ${['낮음 (배터리 절약)','보통','높음 (그림자·고해상도)'][meta.settings.r3q==null?2:meta.settings.r3q]}</button><button class="ch" data-act="illTog">그림체: ${meta.settings.ill===0?'코드 일러스트(표정·포즈 다양)':'손그림 일러스트'}</button><button class="ch" data-act="l2Tog">캐릭터 움직임 (Live2D식): ${meta.settings.l2===0?'끔':'켬'}</button><button class="ch" data-act="epiTog">애니 연출 (다음 화 예고): ${meta.settings.epi===0?'끔':'켬'}</button><button class="ch" data-act="tipsOn">튜토리얼 다시 보기${meta.settings.tips===0?' (현재 꺼짐)':''}</button></div>
+  modal(`<h2>설정</h2><div class="choices"><button class="ch" data-act="spd">중계 속도: ${sp()===1?'보통':sp()===2?'빠르게':'매우 빠르게'}</button><button class="ch" data-act="snd">사운드: ${meta.settings.sound===0?'끔':'켬'}</button><button class="ch" data-act="vol">음량: ${meta.settings.vol==null?60:meta.settings.vol}%</button><button class="ch" data-act="mvol">음악: ${meta.settings.music==null?70:meta.settings.music}%</button><button class="ch" data-act="r3Tog">3D 중계·위닝 라이브: ${meta.settings.r3===0?'끔':'켬'}</button><button class="ch" data-act="fpsTog">중계 프레임: ${(meta.settings.fps||30)}fps${meta.settings.eco?' (절전 중 30)':''}</button><button class="ch" data-act="ecoTog">절전 모드 (발열·배터리): ${meta.settings.eco?'켬 — 3D 낮음·30fps·캐릭터 움직임 끔':'끔'}</button><button class="ch" data-act="r3q">3D 그래픽 품질: ${['낮음 (배터리 절약)','보통','높음 (그림자·고해상도)'][meta.settings.r3q==null?2:meta.settings.r3q]}</button><button class="ch" data-act="illTog">그림체: ${meta.settings.ill===0?'코드 일러스트(표정·포즈 다양)':'손그림 일러스트'}</button><button class="ch" data-act="l2Tog">캐릭터 움직임 (Live2D식): ${meta.settings.l2===0?'끔':'켬'}</button><button class="ch" data-act="epiTog">애니 연출 (다음 화 예고): ${meta.settings.epi===0?'끔':'켬'}</button><button class="ch" data-act="tipsOn">튜토리얼 다시 보기${meta.settings.tips===0?' (현재 꺼짐)':''}</button></div>
   <p style="font-size:12px;color:var(--dim)">진행은 자동 저장돼요. 저장 코드를 복사해 두면 다른 곳에서 이어할 수 있어요.</p>
   <textarea id="codeBox" style="width:100%;min-height:70px;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:8px;font:11px monospace;padding:8px">${code}</textarea>
   <button class="btn sub" data-act="copy">저장 코드 복사</button><button class="btn sub" data-act="import">붙여 넣은 코드 불러오기</button>
@@ -5766,6 +5774,8 @@ document.addEventListener('click',async ev=>{
     case 'r3Tog':meta.settings.r3=meta.settings.r3===0?1:0;saveMeta();settings();break;
     case 'illTog':meta.settings.ill=meta.settings.ill===0?1:0;saveMeta();settings();try{renderTitle()}catch(e){};break;
     case 'l2Tog':meta.settings.l2=meta.settings.l2===0?1:0;saveMeta();l2apply();settings();break;
+    case 'fpsTog':meta.settings.fps=(meta.settings.fps||30)===30?60:30;saveMeta();if(R3V) R3V.setFps(effFps());settings();break;
+    case 'ecoTog':meta.settings.eco=meta.settings.eco?0:1;saveMeta();l2apply();if(R3V) R3V.setFps(effFps());settings();break;
     case 'epiTog':meta.settings.epi=meta.settings.epi===0?1:0;saveMeta();settings();break;
     case 'tipsOn':meta.settings.tips=1;meta.tips={};saveMeta();toast('튜토리얼을 처음부터 다시 보여 줄게요');settings();break;
     case 'continue':G=loadG();if(G) renderHub();break;
