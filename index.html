@@ -171,6 +171,8 @@ button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
 .row{display:grid;grid-template-columns:26px 4px 1fr auto 22px;gap:6px;align-items:center;padding:4px 8px;border-radius:5px;background:var(--card)}
 #tower .row{background:linear-gradient(90deg,#0d1020f2,#151a33e6);border-radius:3px;padding:3px 6px 3px 0;grid-template-columns:24px 4px 1fr auto auto 20px}
 #tower .row .p{background:#fff;color:#0b0d14;border-radius:2px 0 0 2px;font-size:13px;height:22px;line-height:22px}
+#tower .lc{font-size:10px;margin-left:4px;font-weight:800}#tower .lc.up{color:#3ddc84}#tower .lc.dn{color:#ff5a66}
+@keyframes rowflash{0%{box-shadow:inset 0 0 0 100px #ffd23f55}100%{box-shadow:inset 0 0 0 100px transparent}}#tower .row.flash{animation:rowflash 1.4s ease-out}
 #tower .row.me .p{background:var(--gold)}
 #tower .row .dl{font-size:10px;font-weight:800;width:22px;text-align:center}.dl.up{color:var(--lime)}.dl.dn{color:#ff6b7a}
 #tower .row.fl .gp{color:#c77dff;font-weight:800}
@@ -2793,7 +2795,7 @@ function race(host,o){
   for(i=0;i<n;i+=16){if(Math.abs(kS[i])>0.002) continue;var side=(i/16)%2?1:-1;if(side<0&&i>=msA&&i<=msA+msL) continue;var off=side>0?bR(i):bL(i);var p=pts[i].clone().addScaledVector(nrm[i],off+side*0.6);var bb=new T.Mesh(new T.PlaneGeometry(14,2.6),bbM[(i/16)%6]);bb.position.copy(p);bb.position.y=2.5;bb.rotation.y=Math.atan2(dir[i].x,dir[i].z)+(side>0?-Math.PI/2:Math.PI/2);sc.add(bb)}
   segs.forEach(function(sg){var st=sg[0]-Math.round(120/DS);[3,2,1].forEach(function(m,ix){var jj=((st+ix*Math.round(40/DS))%n+n)%n;var side=kS[((sg[0]%n)+n)%n]>0?-1:1;var p=pts[jj].clone().addScaledVector(nrm[jj],side*(HW+3));var bm=new T.Mesh(new T.PlaneGeometry(1.2,1.2),new T.MeshBasicMaterial({map:cv(64,64,function(x){x.fillStyle='#fff';x.fillRect(0,0,64,64);x.fillStyle='#111';x.font='bold 30px sans-serif';x.textAlign='center';x.fillText(m+'00',32,44)}),side:T.DoubleSide}));bm.position.copy(p);bm.position.y=1.0;bm.rotation.y=Math.atan2(dir[jj].x,dir[jj].z)+Math.PI;sc.add(bm)})});
   // start gantry + grid + bridge
-  var GANTRY=null;function setLights(n){if(!GANTRY) return;GANTRY.LM.forEach(function(m,i){m.color.setHex(i<n?0xff2030:0x2a0608)});GANTRY.LG.forEach(function(g,i){g.visible=(i>>1)<n})}
+  var GANTRY=null,FLAG=null,FIN=null;function setLights(n){if(!GANTRY) return;GANTRY.LM.forEach(function(m,i){m.color.setHex(i<n?0xff2030:0x2a0608)});GANTRY.LG.forEach(function(g,i){g.visible=(i>>1)<n})}
   (function(){var j=sfI,p=pts[j],dd=dir[j],nn=nrm[j];var gm=new T.MeshStandardMaterial({color:0x2a2c38,roughness:.5,metalness:.4});var bar=new T.Mesh(new T.BoxGeometry(2*HW+6,1.6,1.2),gm);bar.position.copy(p);bar.position.y=7.8;bar.rotation.y=Math.atan2(nn.x,nn.z)+Math.PI/2;bar.castShadow=true;sc.add(bar);
     [-1,1].forEach(function(s){var pl=new T.Mesh(new T.BoxGeometry(1,8.6,1),gm);pl.position.copy(p).addScaledVector(nn,s*(HW+3));pl.position.y=4.3;sc.add(pl)});
     // 스타트 라이트: 5열 × 2줄. 열마다 재질을 따로 두어 lights(n)으로 하나씩 켜고 한꺼번에 끈다(라이트 아웃)
@@ -2801,6 +2803,8 @@ function race(host,o){
       var gs=new T.Sprite(new T.SpriteMaterial({map:glowTex(),color:0xff3040,transparent:true,depthWrite:false,blending:T.AdditiveBlending}));gs.position.copy(l.position).addScaledVector(dd,-0.35);gs.scale.set(2.4,2.4,1);gs.visible=false;sc.add(gs);LG.push(gs)}}
     GANTRY={LM:LM,LG:LG};
     var ct=cv(128,16,function(x,w,h){for(var i=0;i<32;i++)for(var k=0;k<4;k++){x.fillStyle=(i+k)%2?'#f5f5f5':'#111';x.fillRect(i*4,k*4,4,4)}});var ln=new T.Mesh(new T.PlaneGeometry(2*HW,1.4),new T.MeshStandardMaterial({map:ct,roughness:.8}));ln.rotation.x=-Math.PI/2;ln.rotation.z=-Math.atan2(dd.x,dd.z)+Math.PI/2;ln.position.copy(p);ln.position.y=0.035;ln.receiveShadow=true;sc.add(ln);
+    // 체커드 플래그(피니시 때만) + 피니시 캠 기준점
+    FLAG=new T.Mesh(new T.PlaneGeometry(2.4,1.5),new T.MeshBasicMaterial({map:ct,side:T.DoubleSide}));FLAG.position.copy(p).addScaledVector(nn,HW+2.4).addScaledVector(dd,-0.9);FLAG.position.y=9.5;FLAG.visible=false;sc.add(FLAG);FIN={p:p.clone(),dd:dd.clone(),nn:nn.clone()};
     var gm2=new T.MeshBasicMaterial({color:0xf2f2f6});for(var g=0;g<12;g++){var gj=((j-Math.round((8+g*8)/DS))%n+n)%n,side=g%2?1:-1;var box=new T.Mesh(new T.PlaneGeometry(2.6,.18),gm2);box.rotation.x=-Math.PI/2;box.rotation.z=-Math.atan2(dir[gj].x,dir[gj].z)+Math.PI/2;box.position.copy(pts[gj]).addScaledVector(nrm[gj],side*2.4);box.position.y=0.035;sc.add(box)}
     var bj=(j+Math.round(260/DS))%n,bp=pts[bj];var bridge=new T.Mesh(new T.BoxGeometry(2*HW+30,2.4,4),new T.MeshStandardMaterial({color:0xe8eaf0,roughness:.6}));bridge.position.copy(bp);bridge.position.y=9;bridge.rotation.y=Math.atan2(nrm[bj].x,nrm[bj].z)+Math.PI/2;bridge.castShadow=true;sc.add(bridge);
     [1,-1].forEach(function(s){var bnr=new T.Mesh(new T.PlaneGeometry(2*HW+30,2.2),new T.MeshBasicMaterial({map:boardTex(3),side:T.DoubleSide}));bnr.position.copy(bp).addScaledVector(dir[bj],s*2.05);bnr.position.y=9;bnr.rotation.y=bridge.rotation.y+(s>0?0:Math.PI);sc.add(bnr);var pl=new T.Mesh(new T.BoxGeometry(1.2,9,1.2),gm);pl.position.copy(bp).addScaledVector(nrm[bj],s*(HW+14));pl.position.y=4.5;sc.add(pl)})})();
@@ -2842,7 +2846,7 @@ function race(host,o){
   function gridS(ix){return cum[sfI]-7-ix*7.5}
   var holdOn=false,ramp=1;
   function release(){var list=[];for(var id in cars){var e=cars[id];if(!e.dnf) list.push(e)}if(!list.length) return;list.sort(function(a,b){return (a.pos||99)-(b.pos||99)});tau=tAtS(gridS(0))+list[0].g;ramp=0;
-    list.forEach(function(e,ix){var sim=sAtT(tau-e.g);e.rel=sim;e.off=wrapD(gridS(ix)-sim);if(Math.abs(e.off)<0.5) e.off=0})}
+    list.forEach(function(e,ix){var sim=sAtT(tau-e.g);e.rel=sim;e.off=wrapD(gridS(ix)-sim);if(Math.abs(e.off)<0.5) e.off=0;e.sim=null})}
   /* 피트 레인 위치(레이싱 라인 오프셋 없이) */
   function pitAt(s,lane,out,d,nn){var r=idxAt(s),a=r[0],b=(a+1)%n,f=r[1];out.lerpVectors(pts[a],pts[b],f);d.lerpVectors(dir[a],dir[b],f).normalize();nn.set(-d.z,0,d.x);out.addScaledVector(nn,lane)}
   /* 피트 스톱 컷신: 접근(PIT_TA) → 정차(dur: 크루 배치·잭 업·휠건 스파크·타이어 교체) → 출발(PIT_TC). 그동안 내 차와 카메라를 직접 움직인다 */
@@ -2863,7 +2867,7 @@ function race(host,o){
     var mp=e.m.position,fw=tmpD;
     if(ph===0){camP.set(mp.x-fw.x*6.5-tmpN.x*1.2,1.7,mp.z-fw.z*6.5-tmpN.z*1.2);camL.set(mp.x+fw.x*9,0.8,mp.z+fw.z*9);if(c.t<0.06) cam.position.copy(camP);else cam.position.lerp(camP,Math.min(1,rdt*5));cam.fov=50}
     else{if(!c.camB){c.camB=new T.Vector3();var d2=new T.Vector3(),n2=new T.Vector3();pitAt(P.sBox+2.5,P.lane+5.2,c.camB,d2,n2);c.camB.y=1.75}cam.position.copy(c.camB);camL.set(mp.x,0.55,mp.z);cam.fov=ph===2?Math.max(30,46-u2*10):46}
-    if(c.t>=PIT_TA+c.dur+PIT_TC){cine=null;e.g=e.tg;e.lift=0;if(CREW) CREW.visible=false;camMode=0;camT=0;manual=false;try{c.done()}catch(x){}}
+    if(c.t>=PIT_TA+c.dur+PIT_TC){cine=null;e.g=e.tg;e.sim=null;e.lift=0;if(CREW) CREW.visible=false;camMode=0;camT=0;manual=false;try{c.done()}catch(x){}}
     return mp}
   function frameAt(s,lane,out,d,nn){var r=idxAt(s),a=r[0],b=(a+1)%n,f=r[1];out.lerpVectors(pts[a],pts[b],f);d.lerpVectors(dir[a],dir[b],f).normalize();nn.set(-d.z,0,d.x);var L=line[a]*(1-f)+line[b]*f+lane;out.addScaledVector(nn,L);return [a,f]}
   function vAt(s){var r=idxAt(s);return v[r[0]]*(1-r[1])+v[(r[0]+1)%n]*r[1]}
@@ -2877,8 +2881,10 @@ function race(host,o){
   function frame(now){if(!running) return;requestAnimationFrame(frame);if(!host.isConnected||!vis){last=now;STATS.skip++;return}if(FPS<58&&now-lastR<1000/FPS-3) return;lastR=now;var tf0=performance.now();var dt=Math.min(0.05,(now-last)/1000);last=now;var rdt=dt;dt*=slow;
     perf.push(dt);if(perf.length>90){var avg=perf.reduce(function(a,b){return a+b},0)/perf.length;perf=[];if(avg>0.034&&Q>0&&qDrop<2){qDrop++;setQ(Q-1)}}
     var spd=st.sc?0.55:1;if(!holdOn){ramp=Math.min(1,ramp+dt/2.6);tau+=dt*spd*(0.12+0.88*ramp)}var arr=[];
-    for(var id in cars){var e=cars[id];if(e.dnf){e.m.visible=false;continue}e.m.visible=true;if(cine&&e===cine.e) continue;if(first||holdOn) e.g=e.tg;var dg=(e.tg-e.g)*Math.min(1,dt*0.8);dg=Math.max(-dt*0.35,Math.min(dt*0.35,dg));if(Math.abs(e.tg-e.g)>LAP*0.5) dg=e.tg-e.g;e.g+=dg;e.ps=e.s;
-      var sim=sAtT(tau-e.g);if(e.off){var trv=wrapD(sim-e.rel),f=Math.max(0,1-trv/Math.max(40,Math.abs(e.off)*1.3));if(f<=0) e.off=0;sim+=e.off*f}e.s=sim;arr.push(e)}
+    for(var id in cars){var e=cars[id];if(e.dnf){e.m.visible=false;continue}e.m.visible=true;if(cine&&e===cine.e) continue;if(first||holdOn) e.g=e.tg;var dg=(e.tg-e.g)*Math.min(1,dt*0.8);dg=Math.max(-dt*0.35,Math.min(dt*0.35,dg));if(Math.abs(e.tg-e.g)>LAP*0.5){dg=e.tg-e.g;e.sim=null}e.g+=dg;e.ps=e.s;
+      var sim=sAtT(tau-e.g);if(e.off){var trv=wrapD(sim-e.rel),f=Math.max(0,1-trv/Math.max(40,Math.abs(e.off)*1.3));if(f<=0) e.off=0;sim+=e.off*f}
+      // 차는 절대 뒤로 가지 않는다(갭이 벌어져도 제자리에서 기다렸다가 다시 전진): 스타트 램프 중 갭 보정으로 뒤로 밀리던 문제
+      if(e.sim!=null){var bk=wrapD(sim-e.sim);if(bk<0) sim=e.sim}e.sim=sim;e.s=sim;arr.push(e)}
     first=false;arr.sort(function(a,b){return a.g-b.g});
     if(holdOn){arr.sort(function(a,b){return (a.pos||99)-(b.pos||99)});arr.forEach(function(e,ix){e.s=gridS(ix);e.lane=ix%2?2.3:-2.3})}
     else{
@@ -2911,6 +2917,7 @@ function race(host,o){
       if(tvSpot){var ds2=((me.s-tvSpot.s)%LEN+LEN)%LEN;if(ds2>60&&ds2<LEN/2) tvSpot.done=true;cam.position.copy(tvSpot.p);var dd=tvSpot.p.distanceTo(mp);cam.fov=Math.max(4,Math.min(45,2*Math.atan(12/dd)*180/Math.PI))}camL.set(mp.x,0.7,mp.z)}
     else if(camMode===2){camP.set(mp.x-fw.x*1.25,1.62,mp.z-fw.z*1.25);camL.set(mp.x+fw.x*40,-1.8,mp.z+fw.z*40);cam.position.copy(camP);cam.fov=68;shake=vme*0.0004}
     else if(camMode===3){camP.set(mp.x-fw.x*38+fw.z*20,34,mp.z-fw.z*38-fw.x*20);camL.set(mp.x+fw.x*14,0,mp.z+fw.z*14);if(snap) cam.position.copy(camP);else cam.position.lerp(camP,Math.min(1,dt*3));cam.fov=42}
+    else if(camMode===7&&FIN){camP.copy(FIN.p).addScaledVector(FIN.nn,HW+9).addScaledVector(FIN.dd,-30);camP.y=4.6;cam.position.copy(camP);camL.copy(FIN.p).addScaledVector(FIN.dd,-3);camL.y=1.8;cam.fov=46;if(FLAG){FLAG.rotation.y=Math.atan2(-FIN.dd.x,-FIN.dd.z)+Math.sin(now/170)*0.5;FLAG.rotation.z=Math.sin(now/230)*0.18}}
     else if(camMode===5){camP.set(mp.x-fw.x*7.5+tmpN.x*2.4,2.7,mp.z-fw.z*7.5+tmpN.z*2.4);camL.set(mp.x+fw.x*16,2.6,mp.z+fw.z*16);if(snap) cam.position.copy(camP);else cam.position.lerp(camP,Math.min(1,rdt*4));cam.fov=58}
     else{camP.set(mp.x+fw.x*2.2,0.62,mp.z+fw.z*2.2);camL.set(mp.x+fw.x*40,0.3,mp.z+fw.z*40);cam.position.copy(camP);cam.fov=72;shake=vme*0.0003}
     if(camMode===2||camMode===4){cam.position.y+=(Math.random()-.5)*shake;cam.position.x+=(Math.random()-.5)*shake}
@@ -2931,6 +2938,8 @@ function race(host,o){
     /* hold(true): 그리드에 정렬해 정지(라이트 시퀀스), hold(false): 출발 — 시뮬 위치로 2.6초에 걸쳐 가속하며 합류 */
     hold:function(on){if(on){holdOn=true;camMode=5;camT=0;manual=false;startT=-1;setLights(0)}else if(holdOn){holdOn=false;release();startT=0;startT0=performance.now();setLights(0)}},
     lights:setLights,setFps:function(f){FPS=f||30},stats:function(){return STATS},
+    /* 피니시: 선두를 출발선 75m 앞에 두고 피니시 캠(모드 7)+체커드 플래그. 나머지는 갭(초) 순서대로 실시간으로 라인을 지난다 */
+    finish:function(){var lead=null;for(var id in cars){var e=cars[id];if(e.dnf) continue;if(!lead||e.g<lead.g) lead=e}if(lead){tau=tAtS(cum[sfI]-75)+lead.g;for(var id2 in cars){cars[id2].sim=null;cars[id2].off=0}}ramp=1;holdOn=false;cine=null;slow=1;camMode=7;camT=0;manual=true;if(FLAG) FLAG.visible=true},
     /* pause(true): 선택지 대기 중 슬로모션(시뮬은 UI가 멈추지만 중계가 계속 달리는 것처럼 보이지 않게) */
     pause:function(on){slow=on?0.12:1},
     /* pitStop({dur,comp,inc,drive,onPhase}) → 컷신이 끝나면 resolve. 2D 모드나 이미 진행 중이면 즉시 resolve */
@@ -5422,6 +5431,21 @@ function overtakeCut(R){if(R3V&&R3V._m==null){R3V.cam(0);setTimeout(()=>{if(R3V&
   const d=document.createElement('div');d.className='otk';const dur=1150/sp();d.style.setProperty('--d',dur+'ms');d.style.setProperty('--team',teamCols().c1);
   d.innerHTML=`<div class="c2">${carSvg(v)}</div><div class="c1">${carSvg(R.me)}</div><b class="chrome">OVERTAKE!</b><span>P${mi+1} 탈환</span>`;
   document.body.appendChild(d);SFX.shing();return new Promise(r=>setTimeout(()=>{d.remove();r()},dur))}
+/* ---------- 피니시 시퀀스: 체커드 플래그 → 1위부터 갭(초) 간격으로 라인을 지나며 순위가 확정된다(피드·캡션·3D 피니시 캠). 내 차가 들어올 때까지(최대 상위 10+나) ---------- */
+async function finishSequence(R){if(fast||WM==='auto'||!R||!R.result) return;const res=R.result.filter(c=>!c.dnf);if(!res.length) return;
+  const lead=res[0],meIdx=res.indexOf(R.me),nm=c=>esc(c.me?G.d.name:(c.call||c.name));const f=$('#feed');
+  const hudTxt=s=>{const h=document.querySelector('#rT3 .r3hud');if(h) h.textContent=s};
+  if(R3V){R3V.finish();hudTxt('🏁 FINISH · 체커드 플래그')}
+  capSet({k:'finish',t:'🏁 체커드 플래그 — 선두가 마지막 코너를 돈다',lap:R.laps,pri:2});await sleep(R3V?1600:500);
+  const N=Math.min(res.length,Math.max(10,meIdx+1));
+  for(let i=0;i<N;i++){const c=res[i];const gap=i===0?0:(c.time-res[i-1].time);await sleep(i===0?0:Math.min(2400,Math.max(220,gap*1000)));
+    const g=i===0?'WINNER':'+'+(c.time-lead.time).toFixed(1)+'s';
+    if(f) f.insertAdjacentHTML('afterbegin',`<div class="ln ${c.me?'p2':i===0?'p1':''}"><span class="lp">🏁 P${i+1}</span>${nm(c)} <b>${g}</b></div>`);
+    capSet({k:'finish',t:i===0?`🏁 ${nm(c)} 우승! 체커드 플래그`:`🏁 P${i+1} ${nm(c)} ${g}`,lap:R.laps,pri:c.me||i===0?2:1});
+    if(i===0){SFX.fanfare();HAP.tap(c.me?'win':'light')}else if(c.me){SFX.chime();HAP.tap('med')}else SFX.click();
+    if(c.me&&i>=9) break}
+  if(R.me.dnf) capSet({k:'finish',t:'리타이어 — 체커드 플래그를 보지 못했다',lap:R.laps,pri:2});
+  await sleep(1300)}
 /* ---------- 피트 스톱 컷신: 3D면 피트 레인 진입→정차(실시간 타이머)→출발, 2D면 컷인 카드. 정차 시간·사고(휠 너트/언세이프/더블 스택)·수리·페널티 결과를 보여 준다 ---------- */
 const PIT_BASE_UI={f1:2.3,f2:2.9,f3:3,fr:3.2,f4:3.4,kart:4,sf:6.5,indy:7,wec:28,fe:3,gt:30};
 async function pitCut(R,l,penOnly){if(fast||WM==='auto'||!R) return;const mp=(R.myPits||[]).slice(-1)[0]||{};const recent=R.lines.slice(-8);const base=PIT_BASE_UI[G.season.tier]||3;
@@ -5612,7 +5636,7 @@ async function runRace(i){
 
   $('#rBody').insertAdjacentHTML('beforeend',`<div class="bcap" id="cap"><span class="lp">LAP 1</span><b>라이트 아웃! 레이스 시작!</b></div><div class="tower" id="tower"></div><div class="map"><span class="mlab">${esc(W.tr.n)}</span>${trackSVG(W.rid)}</div><div class="myBar" id="myBar"></div><div class="sec" style="margin-top:8px">중계 기록</div><div class="feed" id="feed"></div>`);
   mapInit();
-  let shown=0;
+  let shown=0,finalCue=false;
   setCtrl();
   while(!RACE.done){
     RACE.step();
@@ -5624,6 +5648,7 @@ async function runRace(i){
       f.insertAdjacentHTML('afterbegin',`<div class="ln ${l.k==='talent'?'tal':l.k.startsWith('radio')?'radio':l.pri>=2?'p2':l.pri?'p1':''}"><span class="lp">L${l.lap}</span>${esc(l.t)}</div>`);if(f.children.length>40) f.lastChild.remove();capSet(l);SFX.line(l.k);if(l.k==='overtake_me'||l.k==='overtaken_me'||/collision|dnf_me/.test(l.k)) HAP.tap('light');if(l.k==='overtake_me') await overtakeCut(RACE);else if(l.k==='pit_me') await pitCut(RACE,l,false);else if(l.k==='pen_serve'&&!RACE.lines.slice(shown,shown+3).some(x=>x.k==='pit_me')) await pitCut(RACE,l,true)}
     while(RACE.cut.length){const t=RACE.cut.shift();const lv=G.d.tal[t.id]||1;await cutin(t.rar==='U'&&t.evo?t.evo[lv-1].n:t.n,'TALENT')}
     drawTower();
+    if(RACE.lap>=RACE.laps&&!finalCue){finalCue=true;capSet({k:'final',t:'🏁 마지막 랩! 체커드 플래그가 기다린다',lap:RACE.lap,pri:2});HAP.tap('med');SFX.alert()}
     if(RACE.w>0.3) SFX.rainOn();else SFX.rainOff();
     SFX.engineRpm(RACE.sc||RACE.vsc?0.25:0.55+(RACE.me.mode||0)*0.12+Math.random()*0.15);SFX.bgmInt(RACE.sc||RACE.vsc?0.45:1);
     if(RACE.pending){const d=RACE.pending;
@@ -5635,6 +5660,7 @@ async function runRace(i){
     const base=WM==='hl'?50:150;const dur=fast?Math.max(25,dwell*0.2):Math.max(base,dwell);mapAnim(dur/sp());
     await sleep(dur);
   }
+  await finishSequence(RACE);
   SFX.engineStop();SFX.rainOff();SFX.bgmInt(0.3);
   }
   r3Stop();$('#rHero').classList.remove('mini');
@@ -5660,10 +5686,12 @@ function drawTower(){
   const ord=R.order;const mi=ord.indexOf(R.me);
   const show=new Set([0,1,2,mi-1,mi,mi+1]);if(R.mate) show.add(ord.indexOf(R.mate));
   const lead=ord[0];let h='',last=-1;
-  [...show].filter(i=>i>=0&&i<ord.length).sort((a,b)=>a-b).forEach(i=>{if(last>=0&&i>last+1) h+='<div class="dots">· · ·</div>';last=i;const c=ord[i];
+  // 직전 랩 대비 순위 변동(▲▼ + 행 깜빡임) — 그리드 대비 변동(dl)과 별개
+  const TW=drawTower._m||(drawTower._m={lap:-1,prev:{},cur:{}});if(TW.lap!==R.lap){TW.prev=TW.cur;TW.cur={};ord.forEach((c,i)=>TW.cur[c.id]=i);TW.lap=R.lap}
+  [...show].filter(i=>i>=0&&i<ord.length).sort((a,b)=>a-b).forEach(i=>{if(last>=0&&i>last+1) h+='<div class="dots">· · ·</div>';last=i;const c=ord[i];const pl=TW.prev[c.id];const chg=pl==null?0:pl-i;
     const gap=c.dnf?'DNF':i===0?'선두':'+'+(c.time-lead.time).toFixed(1);
     const dlt=c.grid?c.grid-(i+1):0;const fl=R.fast&&R.fast.id===c.id;
-    h+=`<div class="row ${c.me?'me':c.mate?'mate':''} ${fl?'fl':''}"><span class="p">${i+1}</span><span class="bar" style="background:${teamColor(c.team)}"></span><span class="n">${esc(c.name)}${c.penTime?`<span class="pen">+${c.penTime}s</span>`:''}${c.penServe&&c.penServe.length?`<span class="pen">${c.penServe[0].type==='sg'?'SG':'DT'}</span>`:''}${c.dmg?'<span class="pen">손상</span>':''}</span><span class="dl ${dlt>0?'up':dlt<0?'dn':''}">${dlt>0?'▲'+dlt:dlt<0?'▼'+(-dlt):''}</span><span class="gp num">${fl?'◆ ':''}${gap}</span><span class="tyre ty-${c.comp}">${c.comp}</span></div>`});
+    h+=`<div class="row ${c.me?'me':c.mate?'mate':''} ${fl?'fl':''} ${chg?'flash':''}"><span class="p">${i+1}</span><span class="bar" style="background:${teamColor(c.team)}"></span><span class="n">${esc(c.name)}${chg>0?`<span class="lc up">▲${chg}</span>`:chg<0?`<span class="lc dn">▼${-chg}</span>`:''}${c.penTime?`<span class="pen">+${c.penTime}s</span>`:''}${c.penServe&&c.penServe.length?`<span class="pen">${c.penServe[0].type==='sg'?'SG':'DT'}</span>`:''}${c.dmg?'<span class="pen">손상</span>':''}</span><span class="dl ${dlt>0?'up':dlt<0?'dn':''}">${dlt>0?'▲'+dlt:dlt<0?'▼'+(-dlt):''}</span><span class="gp num">${fl?'◆ ':''}${gap}</span><span class="tyre ty-${c.comp}">${c.comp}</span></div>`});
   h=`<div class="tw-h"><span>LIVE TIMING · LAP ${Math.min(R.lap,R.laps)}/${R.laps}</span><span>${R.fast?'◆ 패스티스트 랩':''}</span></div>`+h;
   $('#tower').innerHTML=h;tvCam(R);r3Tick(R);
   const me=R.me;const life=C.COMP[me.comp].life/W.tr.deg;const wear=Math.max(0,1-me.age/(life*1.3));
