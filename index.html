@@ -4638,7 +4638,11 @@ Race.prototype.step=function(){
   {const me=this.me;if(me.tmp&&lap>=me.tmp.until){me.mode=me.tmp.back;if(me.tmp.bonus){if(this.pro) me.age=Math.max(0,me.age-2);else me.prep=lap+3;this.say('save_done',{fallback:'타이어를 아낀 보람이 있다. 다시 추격 개시!'})}me.tmp=null}}
   // per-car lap
   const meTf=talentFx(G,this.ctx(this.me),'race');
-  for(const t of meTf._trig||[]) this.trigger(t);
+  // 2026-11-11: 같은 랩에 재능이 여럿 깨어나면(레이스 시작 때 조건 재능·특성·조합이 한꺼번에) 중계 한 줄로 묶는다 — 예전엔 재능마다 한 줄(중요도 1 → 랩 세그먼트 +1.3초씩)과 토스트가 줄줄이 떴다
+  {const nw=(meTf._trig||[]).filter(t=>!this.cutSeen[t.id]);
+    if(nw.length>=2){for(const t of nw){this.cutSeen[t.id]=1;if(t.cut) this.cut.push(t)}
+      const ns=nw.map(t=>t.n);this.say('talent_multi',{fallback:`✦ 재능 ${nw.length}개 발동 — ${ns.slice(0,3).join(' · ')}${ns.length>3?` 외 ${ns.length-3}개`:''}`},1)}
+    else for(const t of nw) this.trigger(t)}
   if(tagHas(tr,'brake')&&!this.me.dnf&&lap>1&&!this.sc&&!this.vsc&&R()<(this.me.mode>0?0.02:0.011)){this.me.time+=rnd(0.6,1.8);this.say('lockup',{fallback:'브레이킹 존에서 락업! 플랫 스폿 진동을 안고 달린다.'})}
   for(const c of this.order){
     if(c.dnf) continue;
@@ -7630,7 +7634,7 @@ async function winLive(out){if(!r3On()||WM==='auto'||fast) return;const res=RACE
   try{await Promise.race([R3D.podium(d,{imgs,color:teamCols().c1,dur:11000,onTime:t=>{let k=-1;lines.forEach((l,i)=>{if(t>=l[0]) k=i});if(k!==li){li=k;cap.innerHTML=lines[k][1]}}}),new Promise(r=>{skip=()=>{SFX.anthemStop();SFX.bgm('race',{inten:0.2,fade:0.8});if(d._r3stop) d._r3stop();r()}})])}catch(e){console.warn(e)}
   d.classList.add('out');await sleep(260);d.remove()}
 /* ---------- TV cam & overtake cut ---------- */
-function capSet(l){const c=document.getElementById('cap');if(!c) return;c.className='bcap '+(l.k==='talent'?'tal':l.k==='dec_fx_me'?'dfx':l.k.startsWith('radio')?'radio':l.rv?'rv':l.pri>=2?'p2':l.pri?'p1':'');c.innerHTML=`<span class="lp">LAP ${l.lap}${l.k.startsWith('radio')?' · 팀 라디오 · '+esc(staff().eng):''}</span><b>${esc(l.t)}</b>`}
+function capSet(l){const c=document.getElementById('cap');if(!c) return;c.className='bcap '+(/^talent/.test(l.k)?'tal':l.k==='dec_fx_me'?'dfx':l.k.startsWith('radio')?'radio':l.rv?'rv':l.pri>=2?'p2':l.pri?'p1':'');c.innerHTML=`<span class="lp">LAP ${l.lap}${l.k.startsWith('radio')?' · 팀 라디오 · '+esc(staff().eng):''}</span><b>${esc(l.t)}</b>`}
 const TVC={key:'',svg:{}};
 function numOf(c){if(c.me) return String(G.d.num||7);let h=0;for(const ch of String(c.id||c.name)) h=(h*31+ch.charCodeAt(0))>>>0;return String(2+h%97)}
 function carSvg(c){if(typeof CARS==='undefined') return '';const k=c.id||c.name;if(TVC.svg[k]) return TVC.svg[k];
@@ -7878,7 +7882,7 @@ async function runRace(i,pro){
   const twTimer=setInterval(()=>{try{if(RACE&&!RACE.done&&R3V&&!RACE.pending) drawTower(true)}catch(e){}},300);
   let lastLap=RACE.lap;
   const impOf=l=>l.pri>=2?2:(l.pri>=1||/radio|pen_me/.test(l.k))?1:/_me$|_me_/.test(l.k)?0.5:0;
-  async function showLine(l){const f=$('#feed');if(f){f.insertAdjacentHTML('afterbegin',`<div class="ln ${l.k==='talent'?'tal':l.k==='dec_fx_me'?'dfx':l.k.startsWith('radio')?'radio':l.rv?'rv':l.pri>=2?'p2':l.pri?'p1':''}"><span class="lp">L${l.lap}</span>${esc(l.t)}</div>`);if(f.children.length>40) f.lastChild.remove()}
+  async function showLine(l){const f=$('#feed');if(f){f.insertAdjacentHTML('afterbegin',`<div class="ln ${/^talent/.test(l.k)?'tal':l.k==='dec_fx_me'?'dfx':l.k.startsWith('radio')?'radio':l.rv?'rv':l.pri>=2?'p2':l.pri?'p1':''}"><span class="lp">L${l.lap}</span>${esc(l.t)}</div>`);if(f.children.length>40) f.lastChild.remove()}
     capSet(l);SFX.line(l.k);if(l.rv) HAP.tap('med');else if(l.k==='overtake_me'||l.k==='overtaken_me'||/collision|dnf_me/.test(l.k)) HAP.tap('light');
     const li=RACE.lines.indexOf(l);if(l.k==='overtake_me') await overtakeCut(RACE);else if(l.k==='pit_me') await pitCut(RACE,l,false);else if(l.k==='pen_serve'&&!RACE.lines.slice(li+1,li+4).some(x=>x.k==='pit_me')) await pitCut(RACE,l,true)}
   let dnfSkip=false;
@@ -7913,9 +7917,10 @@ async function runRace(i,pro){
       if(/pit_me|pen_serve|radio_pit|repair/.test(l.k)) at=D*0.12;if(at==null) at=D*(0.12+0.72*(i+0.5)/Math.max(1,n));return [l,imp,Math.max(0,Math.min(D*0.93,at))]}).sort((a,b)=>a[2]-b[2]);
     let t=0;for(const [l,imp,at] of sched){if(at>t){await sleep(at-t);t=at}await showLine(l);if(/overtake|lead_change|collision|dnf/.test(l.k)) drawTower(true)}
     while(RACE.cut.length){const tc=RACE.cut.shift();const lv=G.d.tal[tc.id]||1;const nm=tc.rar==='U'&&tc.evo?tc.evo[lv-1].n:tc.n;
-      // 재능 컷인은 레이스당 1번, 같은 재능은 12레이스에 한 번만 전체 화면 — 재능이 늘면 매 레이스 같은 컷인이 여러 번 나와 흐름을 끊었다. 나머지는 토스트로
+      // 재능 컷인은 레이스당 1번, 같은 재능은 12레이스에 한 번만 전체 화면 — 재능이 늘면 매 레이스 같은 컷인이 여러 번 나와 흐름을 끊었다.
+      // 2026-11-11: 나머지는 토스트 없이 중계 줄(분홍)만 — 시작 랩에 '✦ … 발동' 토스트가 재능 수만큼 줄줄이 쌓였다. 시작 2랩에 깨어난 재능은 처음 보는 것만 컷인(매 레이스 출발 직후 같은 컷인 반복 방지)
       G.tcut=G.tcut||{};const rn=(G.stats&&G.stats.races)||0,last=G.tcut[tc.id];
-      if(!RACE._cutN&&(last==null||rn-last>=12)&&!(G.ff||WM==='auto')){RACE._cutN=1;G.tcut[tc.id]=rn;await cutin(nm,tc.rar==='combo'?'COMBO':'TALENT')}else toast(`✦ ${esc(nm)} 발동`)}
+      if(!RACE._cutN&&(last==null||(RACE.lap>2&&rn-last>=12))&&!(G.ff||WM==='auto')){RACE._cutN=1;G.tcut[tc.id]=rn;await cutin(nm,tc.rar==='combo'?'COMBO':'TALENT')}}
     mapAnim(Math.max(16,D-t)/sp());await sleep(Math.max(0,D-t));
   }
   clearInterval(twTimer);if(R3V&&R3V.ff) R3V.ff(1);drawTower();
