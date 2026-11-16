@@ -7084,25 +7084,15 @@ let WLD=0;
 function wlStart(){try{const S=G.season,nr=C.nextRace(G);G.wkl={y:G.year,w:G.week,rd:S.cal.indexOf(nr),s:0,W:JSON.parse(JSON.stringify(W))}}catch(e){delete G.wkl}WLD=0;save()}
 function wlMark(n){if(!G||!G.wkl) return;G.wkl.s=n;delete G.wkl.inp;slogClear();try{G.wkl.W=JSON.parse(JSON.stringify(W))}catch(e){}WLD=0;save()}
 function wlBusy(){if(G&&G.wkl) WLD=1}
-
 /* 세션 결정 기록(2026-11-17 리뷰): 세션을 시작할 때(wlIn) 입력(그때의 주말 상태 · 계획)을 G에 저장하고, 세션 중 결정 · 스타트 입력은 G가 아닌 따로(SLOG) 남긴다.
-
    다음에 열면 core wkResume이 같은 시드에 이 기록을 그대로 넣어 재현한 뒤 엔지니어가 잇는다 — 결과를 보고 끈다고 결과가 바뀌지 않는다. 재도전권은 쓰는 순간(다시 wlIn) 저장된다 */
-
 const SLOG='lightsout.slog';
-
 function slogGet(){try{return JSON.parse(localStorage.getItem(SLOG)||'null')}catch(e){return null}}
-
 function slogSet(o){try{localStorage.setItem(SLOG,JSON.stringify(o))}catch(e){}}
-
 function slogClear(){try{localStorage.removeItem(SLOG)}catch(e){}}
-
 function wkLog(){const L=slogGet(),K=G&&G.wkl;return L&&K&&L.cs===(G.seed||0)&&L.y===K.y&&L.w===K.w&&L.rd===K.rd?L:null}
-
 function wlIn(si,k,plan){if(!G||!G.wkl||PRO||si<0) return;try{G.wkl.W=JSON.parse(JSON.stringify(W))}catch(e){}G.wkl.s=si;G.wkl.inp={si,k,rt:G.rtry||0,plan:plan?JSON.parse(JSON.stringify(plan)):null};WLD=0;save();WLD=1;slogSet({cs:G.seed||0,y:G.wkl.y,w:G.wkl.w,rd:G.wkl.rd,si,k,rt:G.rtry||0,d:[],s:null})}
-
 function slogBind(o){if(!o||PRO||!G||!G.wkl) return;const od=o.decide;Object.defineProperty(o,'decide',{configurable:true,writable:true,enumerable:false,value:function(){const r=od.apply(this,arguments);const L=slogGet();if(L){L.d=(this.rpl||[]).slice();if(this.rplS) L.s=this.rplS;slogSet(L)}return r}})}   /* 열거되지 않는 속성으로 — 결정 확률(decOdds · qOdds)이 structuredClone으로 레이스를 복제하는데 함수 속성이 보이면 DataCloneError(3D 세션이 t3d에서 발견, 2026-11-17) */
-
 function slogStart(){const L=slogGet();if(L&&RACE&&!PRO){L.s=[RACE.startIn,RACE.startJump?1:0];slogSet(L)}}
 const MS_TIERS=['f3','f2','f1','sf','indy','wec','fe'];
 async function msFlush(){while(G&&G.pms&&G.pms.length){const m=G.pms.shift();const ms=C.pickEvent(G,'milestone');if(ms){save();await playEvent(ms)}else{if(MS_TIERS.includes(m.tier)) C.breakthrough(G,'첫 우승');save();if(MS_TIERS.includes(m.tier)) await showBreak()}}}   // 첫 우승 마일스톤(core raceRewards가 G.pms에 남긴다): 보여 주기 직전에 꺼내 저장 — 두 번은 없고, 보상 뒤 앱이 꺼져도 다음에 이어 보여 준다
@@ -7441,7 +7431,7 @@ function renderTitle(){try{l2apply()}catch(e){}SFX.bgm('title');
    못 읽으면 마지막으로 받은 사본(localStorage 'lightsout.live'), 그것도 없으면 지금처럼 시드대로. 내용: 공지 · 선물(코인 ≤300) · 주간 컵 조건(테마 · 서킷). 형식은 LIVE_SPEC.md */
 const LIVE_KEY='lightsout.live',LIVE_ABS='https://swkim0906.github.io/lights-out/live.json';let LIVE=null,LIVEN=0;
 function liveClean(o){if(!o||typeof o!=='object'||o.v!==1) return null;const S=(x,n)=>String(x==null?'':x).slice(0,n),day=x=>/^\d{4}-\d{2}-\d{2}$/.test(String(x||''))?String(x):'';
-  const out={v:1,t:day(o.t),notice:[],gift:[],cup:{},tele:(typeof o.tele==='string'&&/^https:\/\/[^\s"'<>]{4,200}$/.test(o.tele))?o.tele:''};
+  const out={v:1,t:day(o.t),notice:[],gift:[],cup:{},tele:(typeof o.tele==='string'&&/^https:\/\/[^\s"'<>]{4,200}$/.test(o.tele))?o.tele:'',lb:(typeof o.lb==='string'&&/^https:\/\/[^\s"'<>]{4,200}$/.test(o.lb))?o.lb:''};
   for(const n of (Array.isArray(o.notice)?o.notice:[]).slice(0,5)){if(!n||!n.id||!n.title) continue;out.notice.push({id:S(n.id,24),from:day(n.from),to:day(n.to),title:S(n.title,40),text:S(n.text,400)})}
   for(const g of (Array.isArray(o.gift)?o.gift:[]).slice(0,3)){if(!g||!g.id) continue;out.gift.push({id:S(g.id,24),from:day(g.from),to:day(g.to),coins:Math.max(0,Math.min(300,Math.round(+g.coins||0))),text:S(g.text,120)})}
   if(o.cup&&typeof o.cup==='object'&&!Array.isArray(o.cup)) for(const k of Object.keys(o.cup).slice(0,8)){if(!/^\d{4}-W\d{2}$/.test(k)) continue;const x=o.cup[k]||{};out.cup[k]={theme:S(x.theme,12),rid:S(x.rid,24),note:S(x.note,60)}}
@@ -7775,7 +7765,7 @@ const TL=(()=>{let L;try{L=JSON.parse(localStorage.getItem(TLOG_KEY)||'null')}ca
    보내기는 ① 받을 곳이 있고(온라인 주간 파일 live.json의 "tele", https만) ② 플레이어가 동의했을 때만, 하루 한 번(text/plain POST · 5초 제한 · 실패해도 그날은 다시 안 보냄).
    지금은 받을 곳이 없어 아무것도 보내지 않는다 — 서버를 정하면 live.json에 주소만 넣고 배포하면 켜진다(앱 업데이트 없이). 보내는 것은 무작위 설치 번호와 숫자 집계뿐(이름 · 닉네임 · 저장 내용 · 창 제목 없음).
    테스트 모드(#qa · 자동화)에서는 window.__qaTele가 있어야 동작한다 */
-const BUILD="2026-11-17 04:20";   // build.py가 빌드 시각으로 바꾼다
+const BUILD="2026-11-17 08:58";   // build.py가 빌드 시각으로 바꾼다
 function teleDay(t){const d=new Date(t);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function teleMetrics(){try{TL.tick()}catch(e){}const L=TL.L;const m=x=>Math.round(x/6000)/10;const d0=k=>new Date(k+'T00:00:00').getTime();
   const inst=teleDay(L.inst||Date.now()),i0=d0(inst),age=Math.max(0,Math.round((d0(teleDay(Date.now()))-i0)/864e5));
@@ -7829,15 +7819,15 @@ async function tlogUI(){const s=tlogSummary();
     <button class="btn sub" data-act="tlogCopy">텍스트 복사</button><button class="btn" data-act="mclose">닫기</button>`)}
 /* ---- [CUP-UI] 주간 그랑프리 컵 (2026-11-08) ---- */
 function cupCard(){const k=C.cupKey(),I=C.cupInfo(k),N=C.cupInfo(C.cupNextKey(k));const w=C.cupState(meta,k);const ne=Object.keys(w.e).length;
-  return {I,N,w,html:`<b>🏆 주간 그랑프리 컵 · ${esc(I.theme.n)}</b><small>${I.note?'★ '+esc(I.note)+' · ':''}${esc(I.trName)} · ${w.best?`이번 주 최고 P${w.best.fin} (${esc(w.best.call||'')})`:'아직 기록 없음'} · 출전 ${ne}명 · 다음 주 ${esc(N.theme.n)}</small>`}}
+  return {I,N,w,html:`<b>🏆 주간 그랑프리 컵 · ${esc(I.theme.n)}</b><small>${I.note?'★ '+esc(I.note)+' · ':''}${esc(I.trName)} · ${w.best?`이번 주 최고 P${w.best.fin} (${esc(w.best.call||'')})${clbRankTxt(k)}`:'아직 기록 없음'} · 출전 ${ne}명 · 다음 주 ${esc(N.theme.n)}</small>`}}
 async function cupMenu(){ensureStarter();const vs=meta.vets||[];const cc=cupCard();const k=cc.I.key;const ap=cc.I.theme.apt;
   if(!vs.length){await modal(`<div class="kicker">주간 그랑프리 컵 · ${esc(k)}</div><h2>${esc(cc.I.theme.n)}</h2><p class="center">${esc(cc.I.trName)}</p><p style="font-size:12.5px;color:var(--dim)">컵에는 은퇴한 드라이버(베테랑)가 나갑니다. 한 시즌 런을 끝내거나 커리어를 마치면 베테랑이 생겨요.</p><button class="btn" data-act="mclose">확인</button>`);return}
   const order=vs.map((v,i)=>[v,i]).sort((a,b)=>(((b[0].apt||{})[ap]||4)-((a[0].apt||{})[ap]||4))||((b[0].avg||0)-(a[0].avg||0)));
   const i=await modal(`<div class="kicker">주간 그랑프리 컵 · ${esc(k)}</div><h2>${esc(cc.I.theme.n)}</h2><p class="center"><b>${esc(cc.I.trName)}</b> · 결승 절반 거리 · 모두 같은 차<br><span style="font-size:12px;color:var(--dim)">이번 주는 <b>${esc(C.APT_N[ap])} 적성</b>이 랩타임에 직접 들어가요. 베테랑마다 주 1회 공식 출전 · 다음 주: ${esc(cc.N.theme.n)}</span></p>
-    ${cupBoardHTML(k)}<div class="cupBt">${cc.w.best?'<button data-act="evc" data-i="-2">📤 내 기록 공유</button>':''}<button data-act="evc" data-i="-3">📥 친구 코드 넣기</button></div>
+    ${cupBoardArea(k)}<div class="cupBt">${cc.w.best?'<button data-act="evc" data-i="-2">📤 내 기록 공유</button>':''}<button data-act="evc" data-i="-3">📥 친구 코드 넣기</button></div>
     <div class="choices"><button class="ch" data-act="evc" data-i="-1">닫기</button></div>
     <div style="max-height:50vh;overflow:auto">${order.map(([v,k2])=>{const e=cc.w.e[v.id];const ag=C.APT_G[(v.apt||{})[ap]||4];return `<button class="vet ${e?'':'sel'}" data-act="evc" data-i="${k2}"><div class="vh">${grd(v.grade)}<b>${esc(v.call||v.n)}</b><span class="vk">${esc(C.APT_N[ap])} ${ag}</span><small>평균 ${v.avg||'?'}${e?` · 이번 주 ${e.fin?'P'+e.fin:(e.ab||e.run)?'중단':'DNF'} (연습만)`:' · 출전 가능'}</small></div><div>${v.f.map(facChip).join('')}</div></button>`}).join('')}</div>`,true);
-  if(i===-2){await cupShare();return cupMenu()}if(i===-3){await cupPaste();return cupMenu()}
+  if(i===-4||i===-5){CUPTAB=i===-5?1:0;return cupMenu()}if(i===-6){await clbUp(k);CUPTAB=1;return cupMenu()}if(i===-2){await cupShare();return cupMenu()}if(i===-3){await cupPaste();return cupMenu()}
   if(i<0||!vs[i]) return;return cupRun(vs[i])}
 /* [CUPSHARE-UI] 컵 결과 공유 코드: 이번 주 최고 공식 기록을 코드로 보내고, 받은 코드는 순위표에 나란히(meta.cupF[주], 최근 6주) */
 function cupGapTxt(r){return r.gap==null?'':r.fin===1?(r.gap<0?`2위와 ${(-r.gap).toFixed(1)}초`:'우승'):`선두와 +${r.gap.toFixed(1)}초`}
@@ -7870,9 +7860,82 @@ async function cupRun(v){const key=C.cupKey();let P=null;try{P=C.cupBuild(key,v)
   const c=await modal(`<div class="kicker">주간 그랑프리 컵 · ${rec.official?'공식 기록':'연습 주행'}</div><h2>${rec.dnf?'리타이어':'P'+rec.fin}${rec.fin===1?' · 우승!':''}</h2>
     <div class="dlyR"><span class="pp">P${rec.grid}</span><span class="ar">→</span><span class="pf ${rec.fin&&rec.fin<=3?'ok':''}">${rec.dnf?'DNF':'P'+rec.fin}</span></div>
     <div class="fxline">${rec.official?`<span class="fx g">코인 +${rec.coins}</span>`:''}${rec.best?`<span class="fx">이번 주 최고 P${rec.best.fin}</span>`:''}${meta.cupWins?`<span class="fx c">🏆 컵 우승 ${meta.cupWins}회</span>`:''}</div>
-    <div class="choices"><button class="ch pri" data-act="evc" data-i="0">다른 베테랑으로 출전</button><button class="ch" data-act="evc" data-i="1">한 시즌 런으로 키우기</button>${rec.best?'<button class="ch" data-act="evc" data-i="3">📤 이번 주 기록 공유</button>':''}<button class="ch" data-act="evc" data-i="2">타이틀로</button></div>`,true);
-  if(c===3){await cupShare();return cupMenu()}
+    <div class="choices"><button class="ch pri" data-act="evc" data-i="0">다른 베테랑으로 출전</button><button class="ch" data-act="evc" data-i="1">한 시즌 런으로 키우기</button>${rec.best?'<button class="ch" data-act="evc" data-i="3">📤 이번 주 기록 공유</button>':''}${clbNeed(key)?'<button class="ch" data-act="evc" data-i="4">🌐 전체 순위표에 올리기</button>':''}<button class="ch" data-act="evc" data-i="2">타이틀로</button></div>`,true);
+  if(c===3){await cupShare();return cupMenu()}if(c===4){await clbUp(key);CUPTAB=1;return cupMenu()}
   if(c===0) return cupMenu();if(c===1) return runMenu();renderTitle()}
+/* ---- [CUPLB-UI] 주간 컵 전체 순위표(2026-11-17, P1-4 게임 쪽 · 형식 CUPLB_SPEC.md) ----
+   live.json `lb`(https)가 있을 때만 켜진다 — 통계 `tele`와 따로 끄고 옮길 수 있게. 올리기는 '🌐 순위표에 올리기'로만(처음 한 번 공개 안내 · 이름 확인 meta.cupLbOk).
+   번호는 컵 전용 meta.cupId(익명 통계 번호와 별개 — 이름이 붙는 공개 기록과 통계를 이을 수 없게, 처음 올릴 때 만든다).
+   상태 meta.cupLb[주]={up:올린 코드 표시, rank, total, pend:실패 → 다음에 컵 메뉴를 열 때 조용히 다시(1분 간격), why}. 네트워크 · busy · err · 옛 서버(JSON이 아닌 답)는 pend.
+   전체 순위표는 받은 코드를 한 줄씩 나눠(16ms 간격) cupVerify → ✔ / ✖(흐리게) / 다른 판 / ?(확인 불가), 결과는 코드마다 기억(CLBV).
+   테스트 모드(#qa · 자동화)에서는 window.__qaLb가 있어야 요청한다 */
+let CLBV={},CLBC=null,CLBQ=0,CUPTAB=null,CLBN=0,CLBUP=0;
+function clbUrl(){const u=LIVE&&LIVE.lb;return (typeof u==='string'&&/^https:\/\/[^\s"'<>]{4,200}$/.test(u))?u:''}
+function clbOn(){return !!clbUrl()&&!(QAMODE&&!window.__qaLb)}
+function clbHex(){try{const a=new Uint8Array(8);crypto.getRandomValues(a);return Array.from(a,x=>x.toString(16).padStart(2,'0')).join('')}catch(e){return (Math.random().toString(16).slice(2)+Math.random().toString(16).slice(2)+'0000000000000000').slice(0,16)}}
+function clbId(){let id=meta.cupId,tid='';try{tid=TL.L.id}catch(e){}if(!/^[0-9a-f]{16}$/.test(id||'')||id===tid){id=clbHex();meta.cupId=id;saveMeta()}return id}
+function clbSt(k){const L=meta.cupLb=meta.cupLb||{};if(!L[k]){L[k]={};const ks=Object.keys(L).sort();while(ks.length>4) delete L[ks.shift()]}return L[k]}
+function clbSig(c){return c?c.length+'.'+c.slice(-4):''}
+function clbCode(k){const b=C.cupState(meta,k).best;if(!b||!b.fin||!b.pf||b.pf.e!==C.ENGV) return null;try{return C.cupShareEncode(meta,k)}catch(e){return null}}   /* 리플레이 입력이 없거나 다른 엔진 판의 기록은 올리지 않는다(서버가 v · eng를 본다) */
+function clbNeed(k){if(!clbOn()) return null;const c=clbCode(k);if(!c) return null;const s=(meta.cupLb||{})[k];return s&&s.up===clbSig(c)?null:c}
+function clbRankTxt(k){const s=(meta.cupLb||{})[k];return clbOn()&&s&&s.rank?` · 🌐 ${+s.rank}위${s.total?'/'+(+s.total):''}`:''}
+function clbFetch(url,opt){let ctl=null,tm=0;try{ctl=new AbortController();tm=setTimeout(()=>{try{ctl.abort()}catch(e){}},6000)}catch(e){}CLBN++;
+  return fetch(url,Object.assign({cache:'no-store',credentials:'omit',signal:ctl?ctl.signal:undefined},opt||{})).then(r=>r.text()).then(t=>{clearTimeout(tm);try{const j=JSON.parse(t);return j&&typeof j==='object'?j:{old:1}}catch(e){return {old:1}}}).catch(()=>{clearTimeout(tm);return null})}   /* null = 연결 실패 · {old:1} = JSON이 아닌 답(옛 통계 전용 스크립트는 글자 ok/bad) */
+const CLB_WHY={name:'베테랑 이름에 순위표에 쓸 수 없는 말이 있어요',limit:'이번 주에 올릴 수 있는 베테랑(12명)을 다 썼어요',full:'이번 주 순위표가 가득 찼어요',bad:'기록 형식이 맞지 않아 올리지 못했어요'};
+async function clbUpload(k,quiet){if(CLBUP) return null;const c=clbNeed(k);if(!c) return null;const b=C.cupState(meta,k).best,s=clbSt(k);s.try=Date.now();CLBUP=1;
+  try{const fail=m=>{s.pend=1;saveMeta();if(!quiet) toast(m);return null};
+    if(navigator.onLine===false) return fail('오프라인이에요 — 다음에 컵 메뉴를 열 때 다시 올려요');
+    const body={a:'cup',v:1,id:clbId(),k,eng:C.ENGV,vet:String(b.pf.i||''),n:String(b.call||''),fin:b.fin,gap:b.gap!=null?b.gap:null,code:c};
+    const j=await clbFetch(clbUrl(),{method:'POST',body:JSON.stringify(body),headers:{'Content-Type':'text/plain;charset=UTF-8'}});
+    if(!j) return fail('순위표에 연결하지 못했어요 — 다음에 컵 메뉴를 열 때 다시 올려요');
+    if(j.old) return fail('순위표가 아직 준비되지 않았어요 — 다음에 컵 메뉴를 열 때 다시 올려요');
+    if(j.r==='busy'||j.r==='err') return fail('순위표가 바빠요 — 다음에 컵 메뉴를 열 때 다시 올려요');
+    if(j.ok===true&&(j.r==='ok'||j.r==='dup')){s.up=clbSig(c);delete s.pend;delete s.why;s.rank=j.rank==null?null:Math.max(0,Math.round(+j.rank))||null;s.total=Math.max(0,Math.round(+j.total||0));s.at=Date.now();CLBC=null;saveMeta();
+      try{TL.ev('cup_lb',k+'|'+(s.rank||'-'))}catch(e){}
+      toast(j.r==='dup'&&!j.same?'이미 올린 기록이 있어요 — 먼저 올린 기록을 지켜요':`🌐 순위표에 올렸어요${s.rank?` · ${s.rank}위`:''}${s.total?` / ${s.total}명`:''}`);return j}
+    s.up=clbSig(c);delete s.pend;s.why=String(j.r||'bad').slice(0,8);saveMeta();try{TL.ev('cup_lb_x',String(j.r||'')+'|'+String(j.why||'').slice(0,12))}catch(e){}
+    toast(CLB_WHY[j.r]||CLB_WHY.bad);return null}
+  finally{CLBUP=0}}
+async function clbConsent(){if(meta.cupLbOk) return true;
+  const r=await modal(`<div class="kicker">주간 그랑프리 컵 · 전체 순위표</div><h2>전체 순위표에 올릴까요?</h2>
+    <p class="gsN">전체 순위표는 <b>모든 플레이어에게 공개</b>돼요. 올라가는 것: 베테랑 이름 · 아래 이름 · 이번 주 공식 기록(순위 · 차 · 예선 · 레이스 중 결정 — 같은 레이스를 다시 돌려 확인하는 데 쓰여요). 기기를 구분하는 무작위 번호도 같이 가지만 화면에는 나오지 않고, 익명 플레이 통계와는 이어지지 않아요.</p>
+    <p class="gsN" style="margin-top:8px">순위표에 보일 이름 (10자까지, 비워 둬도 돼요)</p><input id="nickIn" maxlength="10" value="${esc(meta.nick||'')}" placeholder="예: 서우" style="width:100%;padding:11px;border-radius:10px;border:1px solid var(--line);background:var(--bg2);color:var(--ink);font:15px var(--f-body)">
+    <div class="choices"><button class="ch pri" data-act="evc" data-i="0">올리기</button><button class="ch" data-act="evc" data-i="1">취소</button></div>`,true);
+  if(r!==0) return false;meta.nick=String((($('#nickIn')||{}).value)||'').replace(/[<>"'`&{}$\\|]/g,'').trim().slice(0,10);meta.cupLbOk=1;saveMeta();return true}
+async function clbUp(k){if(!clbNeed(k)) return null;if(!await clbConsent()) return null;return clbUpload(k,false)}
+function clbRow(x,me){const n=v=>{v=+v;return isFinite(v)?v:null};
+  return {r:Math.max(0,Math.round(n(x.r)||0)),name:String(x.name==null?'':x.name).slice(0,12),nick:String(x.nick==null?'':x.nick).slice(0,12),fin:Math.max(0,Math.min(22,Math.round(n(x.fin)||0))),gap:x.gap==null||n(x.gap)==null?null:n(x.gap),
+    grid:Math.max(0,Math.round(n(x.grid)||0))||null,grade:/^[SABCD]$/.test(String(x.grade||''))?String(x.grade):null,avg:Math.max(0,Math.round(n(x.avg)||0))||null,code:typeof x.code==='string'&&x.code.length<=6200?x.code:'',me:!!me}}
+function clbRowHTML(x,i){const tt=(x.avg?'평균 능력 '+x.avg:'')+(x.avg&&x.grid?' · ':'')+(x.grid?'예선 P'+x.grid:'');
+  return `<div class="cbr ${x.me?'me':''}" data-cli="${i}"${tt?` title="${tt}"`:''}><span class="rk">${x.r||'-'}</span><span class="nm">${x.nick?esc(x.nick)+' · ':''}${esc(x.name)}${x.grade?' '+esc(x.grade):''}${x.me?'<i>나</i>':''}<span class="vfs">${x.me||!x.code?'':'<b class="vf wait" title="같은 레이스를 다시 돌려 확인하는 중">…</b>'}</span></span><span class="rs ${x.fin&&x.fin<=3?'ok':''}">P${x.fin}</span><small>${cupGapTxt(x)}</small></div>`}
+function clbBadge(el,v){el.classList.toggle('bad',v===false);const s=el.querySelector('.vfs');if(!s) return;
+  s.innerHTML=v===true?'<b class="vf ok" title="같은 레이스를 다시 돌려 확인한 기록">✔</b>':v===false?'<b class="vf no" title="다시 돌려 보니 기록이 맞지 않아요">✖</b>':v==='dv'?'<b class="vf dv" title="다른 판(데이터)에서 만든 기록이라 다시 돌려 확인할 수 없어요">다른 판</b>':'<b class="vf dv" title="확인할 수 없는 기록">?</b>'}
+function clbCheck(x,k){try{const d=C.cupShareDecode(x.code);if(!d.ok) return false;const r=d.r;if(r.k!==k||r.fin!==x.fin||(x.gap!=null&&(r.gap==null||Math.abs(r.gap-x.gap)>0.06))) return false;return C.cupVerify(r)}catch(e){return null}}   /* 줄과 코드가 다르면 ✖, 같으면 같은 레이스를 다시 돌려 본다 */
+function clbBoxHTML(){return '<div class="cupB clbB" id="clbBox"><div class="cbh">🌐 전체 순위표를 불러오는 중…</div></div>'}
+async function clbLoad(k,force){const tok=++CLBQ;const box=()=>{const b=document.getElementById('clbBox');return b&&tok===CLBQ?b:null};if(Object.keys(CLBV).length>400) CLBV={};
+  let j=!force&&CLBC&&CLBC.k===k&&Date.now()-CLBC.at<30e3?CLBC.j:null;
+  if(!j){if(navigator.onLine===false){const b=box();if(b) b.innerHTML='<div class="cbh">오프라인이에요 — 연결되면 전체 순위표를 볼 수 있어요</div>';return}
+    const u=clbUrl();if(!u) return;const q='a=cup&k='+encodeURIComponent(k)+'&eng='+C.ENGV+'&n=20&code=1'+(/^[0-9a-f]{16}$/.test(meta.cupId||'')?'&me='+meta.cupId:'');
+    j=await clbFetch(u+(u.indexOf('?')>=0?'&':'?')+q);if(j&&j.ok===true) CLBC={k,at:Date.now(),j}}
+  const b=box();if(!b) return;
+  if(!j||j.ok!==true){b.innerHTML=`<div class="cbh">${!j?'전체 순위표에 연결하지 못했어요 — 잠시 뒤 다시 열어 보세요':'전체 순위표를 아직 볼 수 없어요'}</div>`;return}
+  const tot=Math.max(0,Math.round(+j.total||0)),mine=(Array.isArray(j.mine)?j.mine:[]).slice(0,12).map(x=>clbRow(Object.assign({nick:meta.nick||''},x),true));
+  const rows=(Array.isArray(j.top)?j.top:[]).slice(0,50).map(x=>{const r=clbRow(x);r.me=mine.some(m=>m.r===r.r&&m.name===r.name&&m.fin===r.fin);return r});
+  const out=mine.filter(m=>m.r&&!rows.some(r=>r.me&&r.r===m.r)).slice(0,1),m0=mine.find(m=>m.r);
+  let oth=0;for(const e in (j.engs||{})) if(+e!==C.ENGV) oth+=Math.max(0,Math.round(+j.engs[e]||0));
+  const st=(meta.cupLb||{})[k];if(st&&st.up&&m0&&(st.rank!==m0.r||st.total!==tot)){st.rank=m0.r;st.total=tot;saveMeta()}
+  b.innerHTML=`<div class="cbh">🌐 이번 주 전체 ${tot}명${m0?` · 내 순위 <b>${m0.r}위</b>`:''}</div>${rows.length?rows.map((x,i)=>clbRowHTML(x,i)).join(''):'<p class="gsN" style="text-align:center">아직 이번 주 기록이 없어요. 첫 기록을 올려 보세요!</p>'}${out.length?'<div class="clbSep">⋯</div>'+clbRowHTML(out[0],'m'):''}${oth?`<div class="clbN">다른 판(예전 버전) 기록 ${oth}개는 따로 셉니다</div>`:''}`;
+  let i=0;const step=()=>{const b2=box();if(!b2) return;while(i<rows.length&&(rows[i].me||!rows[i].code)) i++;if(i>=rows.length) return;const x=rows[i],ix=i++;
+    let v=CLBV[x.code];if(v===undefined){v=clbCheck(x,k);CLBV[x.code]=v}
+    const el=b2.querySelector(`[data-cli="${ix}"]`);if(el) clbBadge(el,v);setTimeout(step,16)};
+  setTimeout(step,30)}
+function cupBoardArea(k){if(!clbOn()) return cupBoardHTML(k);let nf=0;try{nf=C.cupBoard(meta,k).filter(r=>!r.me).length}catch(e){}
+  const tab=CUPTAB!=null?CUPTAB:(nf?0:1),ps=(meta.cupLb||{})[k];
+  if(ps&&ps.pend&&Date.now()-(ps.try||0)>60e3) setTimeout(()=>{clbUpload(k,true).then(j=>{if(j&&document.getElementById('clbBox')) clbLoad(k,true)})},0);   /* 지난번에 못 올린 기록: 조용히 다시 */
+  if(tab) setTimeout(()=>clbLoad(k),0);   /* modal()이 HTML을 넣은 뒤 */
+  const need=clbNeed(k),b=C.cupState(meta,k).best;
+  return `<div class="clbTab"><button data-act="evc" data-i="-4" class="${tab?'':'on'}">친구</button><button data-act="evc" data-i="-5" class="${tab?'on':''}">🌐 전체</button></div>${tab?clbBoxHTML():cupBoardHTML(k)}${need&&b?`<div class="cupBt"><button class="clbUp" data-act="evc" data-i="-6">🌐 이번 주 기록 P${b.fin} 전체 순위표에 올리기</button></div>`:''}`}
+setTimeout(()=>{if(window.__qa) Object.assign(window.__qa,{clbOn,clbUrl,clbNeed,clbUpload,clbUp,clbLoad,clbCheck,clbSt,clbId,clbN:()=>CLBN,clbCache:()=>CLBC,clbV:()=>CLBV,cupTab:t=>{CUPTAB=t},liveSet:o=>{liveApply(liveClean(o))},liveNowObj:()=>LIVE,getMeta:()=>meta,cupMenu,cupCardHTML:()=>cupCard().html,saveMetaNow:()=>saveMeta()})},0);
 /* ---- [AWAKEN-UI] 히든 재능 · 조합 각성 연출 (2026-11-08) ---- */
 let awakeBusy=false;
 async function awakeUI(){if(awakeBusy||!G||!(G.awQ||[]).length||PRO) return;if(!$('#modal').hidden) return;awakeBusy=true;
@@ -9130,7 +9193,7 @@ function openField(){const rows=fieldRows();if(!rows.length) return;const P=C.AI
 .psi{margin-right:3px;font-size:10px;opacity:.75}.psi.on{opacity:1;filter:drop-shadow(0 0 3px #ff7a3d)}.psi.sv{opacity:.4}
 .sd3{display:inline-flex;gap:2px;margin-left:5px;vertical-align:middle}.sd3 i{width:7px;height:7px;border-radius:2px;background:#ffd23f}.sd3 i.sp{background:#b14bff}.sd3 i.sg{background:#3ddc84}
 .sec3{display:inline-flex;gap:2px;margin-left:2px}.sec3 i{font-style:normal;font-size:10px;font-weight:800;padding:1px 3px;border-radius:2px;background:#ffd23f;color:#0b0d14;line-height:12px}.sec3 i.sp{background:#b14bff;color:#fff}.sec3 i.sg{background:#3ddc84}
-.cbr .vf{font-size:11px;margin-left:4px;font-style:normal}.cbr .vf.ok{color:var(--lime)}.cbr .vf.no{color:#ff6b7a}.cbr .vf.dv{color:var(--dim)}
+.cbr .vf{font-size:11px;margin-left:4px;font-style:normal}.cbr .vf.ok{color:var(--lime)}.cbr .vf.no{color:#ff6b7a}.cbr .vf.dv{color:var(--dim)}.clbTab{display:flex;gap:4px;margin:8px 0 0}.clbTab button{flex:1;min-width:0;padding:7px 4px;border-radius:9px;border:1px solid var(--line);background:var(--bg2);color:var(--dim);font-weight:700;font-size:12.5px}.clbTab button.on{background:var(--card);color:var(--ink);border-color:var(--gold)}.clbB .cbr .rk{width:30px}.cbr.bad{opacity:.45}.cbr.bad .nm{text-decoration:line-through}.cbr .vf.wait{color:var(--dim)}.clbSep{text-align:center;font-size:11px;color:var(--dim);line-height:1}.clbN{font-size:11px;color:var(--dim);text-align:center;margin-top:4px}.cupBt .clbUp{background:var(--gold);color:#111;border-color:var(--gold)}
 .fldB{margin:8px 0 2px;width:100%}
 .fleg{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:11px;color:var(--dim);margin:2px 0 8px}
 .fld{display:grid;grid-template-columns:minmax(0,1fr)}
