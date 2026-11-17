@@ -7765,7 +7765,7 @@ const TL=(()=>{let L;try{L=JSON.parse(localStorage.getItem(TLOG_KEY)||'null')}ca
    보내기는 ① 받을 곳이 있고(온라인 주간 파일 live.json의 "tele", https만) ② 플레이어가 동의했을 때만, 하루 한 번(text/plain POST · 5초 제한 · 실패해도 그날은 다시 안 보냄).
    지금은 받을 곳이 없어 아무것도 보내지 않는다 — 서버를 정하면 live.json에 주소만 넣고 배포하면 켜진다(앱 업데이트 없이). 보내는 것은 무작위 설치 번호와 숫자 집계뿐(이름 · 닉네임 · 저장 내용 · 창 제목 없음).
    테스트 모드(#qa · 자동화)에서는 window.__qaTele가 있어야 동작한다 */
-const BUILD="2026-11-17 08:58";   // build.py가 빌드 시각으로 바꾼다
+const BUILD="2026-11-17 09:09";   // build.py가 빌드 시각으로 바꾼다
 function teleDay(t){const d=new Date(t);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function teleMetrics(){try{TL.tick()}catch(e){}const L=TL.L;const m=x=>Math.round(x/6000)/10;const d0=k=>new Date(k+'T00:00:00').getTime();
   const inst=teleDay(L.inst||Date.now()),i0=d0(inst),age=Math.max(0,Math.round((d0(teleDay(Date.now()))-i0)/864e5));
