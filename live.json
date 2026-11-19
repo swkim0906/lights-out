@@ -7,6 +7,6 @@
  "tele": "https://script.google.com/macros/s/AKfycbyRPIaKhc3QgiK7kJ7EOc05N2Qr2gs_MxU8iqGAKs9yYeuoyDry7uagk5wMn3U5s1j8Ng/exec",
  "lb": "https://script.google.com/macros/s/AKfycbyRPIaKhc3QgiK7kJ7EOc05N2Qr2gs_MxU8iqGAKs9yYeuoyDry7uagk5wMn3U5s1j8Ng/exec",
  "ev": [
-  {"id": "rainfest", "on": 0, "from": "2026-12-07", "to": "2026-12-20", "title": "빗속의 축제", "text": "2주 동안 비가 그치지 않는다.\n약한 차로 빗속에서 판을 뒤집어라 — 이벤트 컵 · 기간 한정 출발점 '빗속의 신예' · 보상 트랙(코인 · 칭호 🌧).", "cup": {"theme": "wet", "rid": "bel", "laps": 0.5, "car": "low", "wx": "mid", "grid": "q", "note": "8~10위 차로 · 레이스 중 비"}, "sc": "ev_rain", "badge": {"ic": "🌧", "n": "빗속의 왕"}}
+  {"id": "rainfest", "on": 0, "from": "2026-12-07", "to": "2026-12-20", "title": "빗속의 축제", "text": "2주 동안 비가 그치지 않는다.\n약한 차로 빗속에서 판을 뒤집어라 — 이벤트 컵 · 기간 한정 출발점 '빗속의 신예' · 보상 트랙(코인 · 칭호).", "cup": {"theme": "wet", "rid": "bel", "laps": 0.5, "car": "low", "wx": "mid", "grid": "q", "note": "8~10위 차로 · 레이스 중 비"}, "sc": "ev_rain", "badge": {"n": "빗속의 왕"}}
  ]
 }
