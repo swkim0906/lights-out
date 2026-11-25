@@ -7262,7 +7262,7 @@ const S={
 //  trackPhys: 서킷 실측값(손상 · 추월 난이도) · twoComp: 드라이 두 컴파운드 의무 · pit: 'none' = 피트 스톱 없음(없으면 의무 스톱)
 //  mand: 의무 피트 타이어(all · road · oval — dry 컴파운드, two, min 랩, minF/maxF = 레이스 랩 비율) · noTyre: 타이어 교체 없음 · aw: 전천후 한 가지
 //  kartTyre: 카트 타이어(ET.kartNT면 교체 없음) · wetDecl: 웨트 레이스 선언 · pc: 코션 때 피트 닫힘(all · road · oval) · neutral: 국지 경고(yellow · sc)
-//  slow: 슬로 존 · roll: 롤링 스타트(줄 수는 JEWEL roll — 인디 500 세 줄) · startSig: 롤링 출발 신호(green = 초록불, 없으면 빨간불이 꺼짐) · jumpPen: 점프 스타트 벌(dt = 드라이브 스루, 없으면 5초) · hyb: 하이브리드 파워 유닛(ERS) — 기계 이상 부위에 'ERS 냉각'이 나오는 시리즈 · mechW: 기계 이상 부위 목록('kart' = 카트: 엔진 온도 · 체인 · 브레이크 · 기화기, 노트 101) · noRadio: 주행 중 팀 무전 금지(CIK-FIA 카트 3.14 — 엔지니어 콜 · 무전 줄 · 무전 목소리 없음, 그리드 결정은 그대로, 노트 101) · startMix: 출발 혼전 모델(roll = 카트 롤링 실측 값 · 없으면 F1 스탠딩 실측 값 — 큰 차 롤링은 실측 전까지 스탠딩 값, 노트 100) · scName: 세이프티카 이름 · fcy: VSC 대신 FCY · p2p: 추월 보조(push = 푸시 투 패스 · ots) · drs
+//  slow: 슬로 존 · roll: 롤링 스타트(줄 수는 JEWEL roll — 인디 500 세 줄) · startSig: 롤링 출발 신호(green = 초록불, 없으면 빨간불이 꺼짐) · jumpPen: 점프 스타트 벌(dt = 드라이브 스루, 없으면 5초) · hyb: 하이브리드 파워 유닛(ERS) — 기계 이상 부위에 'ERS 냉각'이 나오는 시리즈 · mechW: 기계 이상 부위 목록('kart' = 카트: 엔진 온도 · 체인 · 브레이크 · 기화기, 노트 101) · noRadio: 주행 중 팀 무전 금지(CIK-FIA 카트 3.14 — 엔지니어 콜 · 무전 줄 · 무전 목소리 없음, 그리드 결정은 그대로, 노트 101) · startMix: 출발 혼전 모델(roll = 카트 롤링 실측 값 · rollB = 큰 차 롤링 — WEC · IMSA · GTWC 첫 랩 실측, 노트 105 · 없으면 F1 스탠딩 실측 값 — 인디카는 랩 차트 실측 전까지 스탠딩 값, 노트 100) · scName: 세이프티카 이름 · fcy: VSC 대신 FCY · p2p: 추월 보조(push = 푸시 투 패스 · ots) · drs
 //  energy: 에너지 관리 · 어택 모드 · traffic: 다른 클래스와 섞임 · fuel: 연료 전략(laps = 랩 기준 · hours = 시간 기준 내구) · qfmt: 예선 형식(ko = 녹아웃 Q1~Q3 · twoSeg = 두 세그먼트)
 //  qNew: 예선 새 타이어 세트(없으면 2) · nwCarry: 예선 새 세트가 레이스로 이어짐
 //  gpDist: 서킷 그랑프리 거리 그대로 · sprF: 스프린트 랩 비율(없으면 0.75) · len: 레이스 길이(time = lenS초 · lenTab = SF 실제 랩 표 먼저, track = 서킷 랩 · 60/72 위)
@@ -7280,8 +7280,8 @@ const T={
  fe:{stage:'alt',road:'feRoad',pit:'none',hyb:1,noTyre:1,aw:1,energy:1,fcy:1,len:'track',oneDry:1,sets:{all:{M:4}}},
  indy:{stage:'alt',road:'indyRoad',hyb:1,roll:1,startSig:'green',jumpPen:'dt',pc:{road:{sc:1},oval:{sc:2}},neutral:'sc',scName:'CAUTION',p2p:'push',mand:{road:{dry:['S','M'],two:1},oval:{dry:['M']}},fuel:'laps',len:'track',jewel:1,sets:{road:{S:5,M:5},oval:{M:8}}},
  sf:{stage:'alt',road:'sfRoad',jpTop:1,p2p:'ots',qfmt:'twoSeg',mand:{all:{dry:['M'],minF:0.25}},len:'time',lenS:3900,lenTab:1,oneDry:1,sets:{all:{M:5}}},
- wec:{stage:'alt',road:'wecRoad',hyb:1,roll:1,jumpPen:'dt',pc:{all:{sc:1,fcy:1}},traffic:1,fcy:1,fuel:'hours',len:'track',jewel:1,sets:{all:{S:3,M:3,H:2}}},
- gt:{stage:'alt',road:'gtRoad',roll:1,startSig:'green',jumpPen:'dt',pc:{all:{fcy:1}},traffic:1,fcy:1,mand:{all:{dry:['M'],minF:0.42,maxF:0.58}},len:'time',lenS:3600,oneDry:1,sets:{all:{M:5}}}
+ wec:{stage:'alt',road:'wecRoad',hyb:1,roll:1,startMix:'rollB',jumpPen:'dt',pc:{all:{sc:1,fcy:1}},traffic:1,fcy:1,fuel:'hours',len:'track',jewel:1,sets:{all:{S:3,M:3,H:2}}},
+ gt:{stage:'alt',road:'gtRoad',roll:1,startMix:'rollB',startSig:'green',jumpPen:'dt',pc:{all:{fcy:1}},traffic:1,fcy:1,mand:{all:{dry:['M'],minF:0.42,maxF:0.58}},len:'time',lenS:3600,oneDry:1,sets:{all:{M:5}}}
 };
 return {C,S,T};
 })();
@@ -7475,7 +7475,7 @@ function faMigrate(G){if(!G||!G.f1||!Array.isArray(G.f1.drivers)||G.f1.fair) ret
 
 /* ===== infra/data ===== */
 
-const ENGV=22;  // 레이스·예선 엔진 판 — 물리를 바꾸면 올린다(다른 판의 리플레이·컵 기록은 검증하지 않는다). 3: 예선 2.0(2026-11-16) — 컵·오늘의 GP 그리드도 새 예선 엔진에서 나온다 · 4: 내 차 재능 효과 합 상한 TCAP(2026-11-17) — 재능이 많은 베테랑의 컵 레이스 결과가 바뀐다 · 5: 1단계 콜 · 라이브 · 서킷별 사고(2026-11-19) · 6: 공정한 필드 FAIR(2026-11-20, FAIRNESS.md) — AI 숨은 랩타임 보정 제거 · AI도 셋업 · 재능 · 컨디션 · 프롤로그 · 오늘의 GP · 컵 상대 능력 재조정 · 8: 추월 보정(2026-11-23, docs/notes/74) — AI 출발 전략 다양성 STRATV · 스탠딩 출발 혼전 STARTV · F1 서킷 ovm 다시 맞춤 · 9: 타이어 모델 실측 보정(2026-11-23, docs/notes/75) — 컴파운드 마모 · 수명 · 엔지니어와 AI가 같은 다시 계획 · SC 추천 · 10: 서킷별 타이어 성격(2026-11-23, docs/notes/79) — 서킷 deg를 서킷 1스톱 비율에 · 컴파운드 d · ovm 다시 · 11: 주간 컵 절반 거리를 레이스를 만들기 전에(2026-11-23, docs/notes/80) — 컵 AI 피트 계획 · 비 시각이 실제 랩 수 기준 · 12: 페이스로 추월 · 넓힌 AI 커버 · 마지막 스틴트 수명+3랩 · F1 ovm 다시 맞춤(2026-11-24, docs/notes/86) — 새 타이어 차가 지나간다 · '늘 1스톱' 공략법 없음 · 13~16: 노트 86 · 17: 장착하는 재능 [TLOAD](2026-11-24, docs/notes/89) · 18: 추월 · 방어 재능을 페이스 추월 승산에 [TOVT](노트 89) · 19: 약점 재능은 장착 밖 — 늘 듣는다(노트 89) · 20: 깃발 아래 피트 값 — 엔지니어 · AI 같은 scGo(노트 91) · 21: 피트류 콜을 결정 순간 상태로 — 첫 스톱 전 깃발 피트 · 창 · 커버 0.55 · 다음 스틴트 컴파운드 nextComp(노트 94) · 22: 롤링 스타트(인디카 · WEC · GT — 출발 혼전이 롤링 값 · 점프 스타트 = 드라이브 스루 · 인디 500 세 줄, 2026-11-25 노트 100)
+const ENGV=23;  // 레이스·예선 엔진 판 — 물리를 바꾸면 올린다(다른 판의 리플레이·컵 기록은 검증하지 않는다). 3: 예선 2.0(2026-11-16) — 컵·오늘의 GP 그리드도 새 예선 엔진에서 나온다 · 4: 내 차 재능 효과 합 상한 TCAP(2026-11-17) — 재능이 많은 베테랑의 컵 레이스 결과가 바뀐다 · 5: 1단계 콜 · 라이브 · 서킷별 사고(2026-11-19) · 6: 공정한 필드 FAIR(2026-11-20, FAIRNESS.md) — AI 숨은 랩타임 보정 제거 · AI도 셋업 · 재능 · 컨디션 · 프롤로그 · 오늘의 GP · 컵 상대 능력 재조정 · 8: 추월 보정(2026-11-23, docs/notes/74) — AI 출발 전략 다양성 STRATV · 스탠딩 출발 혼전 STARTV · F1 서킷 ovm 다시 맞춤 · 9: 타이어 모델 실측 보정(2026-11-23, docs/notes/75) — 컴파운드 마모 · 수명 · 엔지니어와 AI가 같은 다시 계획 · SC 추천 · 10: 서킷별 타이어 성격(2026-11-23, docs/notes/79) — 서킷 deg를 서킷 1스톱 비율에 · 컴파운드 d · ovm 다시 · 11: 주간 컵 절반 거리를 레이스를 만들기 전에(2026-11-23, docs/notes/80) — 컵 AI 피트 계획 · 비 시각이 실제 랩 수 기준 · 12: 페이스로 추월 · 넓힌 AI 커버 · 마지막 스틴트 수명+3랩 · F1 ovm 다시 맞춤(2026-11-24, docs/notes/86) — 새 타이어 차가 지나간다 · '늘 1스톱' 공략법 없음 · 13~16: 노트 86 · 17: 장착하는 재능 [TLOAD](2026-11-24, docs/notes/89) · 18: 추월 · 방어 재능을 페이스 추월 승산에 [TOVT](노트 89) · 19: 약점 재능은 장착 밖 — 늘 듣는다(노트 89) · 20: 깃발 아래 피트 값 — 엔지니어 · AI 같은 scGo(노트 91) · 21: 피트류 콜을 결정 순간 상태로 — 첫 스톱 전 깃발 피트 · 창 · 커버 0.55 · 다음 스틴트 컴파운드 nextComp(노트 94) · 22: 롤링 스타트(인디카 · WEC · GT — 출발 혼전이 롤링 값 · 점프 스타트 = 드라이브 스루 · 인디 500 세 줄, 2026-11-25 노트 100) · 23: 큰 차 롤링 출발 혼전 실측 보정(WEC · GT startMix 'rollB' — WEC · IMSA · GTWC 2023~2026 첫 랩, 2026-11-26 노트 105)
 /* 시리즈 계열 규정(2026-11-23, 구조 단계 G — 규정은 데이터): data/series.js의 T[계열]. 없는 계열은 빈 규정 */
 const REG0=Object.freeze({});
 function regOf(tier){const T=D&&D.series&&D.series.T;return (T&&T[tier])||REG0}
@@ -8014,7 +8014,7 @@ const MECH={dt:0.8,hN:0.006,hP:0.02,what:['엔진 수온','기어박스 유압',
 const START_K=150;
 /* [STARTV] 출발 혼전(2026-11-23) — 실제 1랩 뒤 순위가 바뀐 드라이버 약 65%(4mula1stats 2022: 286 ÷ 22경기 ÷ 20대 · 모나코 3).
    g: 그리드 뒤쪽 배율(폴은 그대로) · o0: 서킷 추월 쉬움(ovt) 기준점 — 좁은 서킷일수록 혼전이 작다. 값은 tools/ovtcal.js로 */
-const STARTV={g:3,o0:0.25};
+const STARTV={g:3,o0:0.25,rB:1.0,rG:1,rL:0.3};   /* rB · rG · rL: 큰 차 롤링(startMix 'rollB' — WEC · GT) 출발 키 잡음 크기 · 그리드 기울기 · 폴 시터 앞섬(롤링에선 폴 시터가 출발 때를 정한다) — WEC · IMSA · GTWC 2023~2026 첫 랩 실측에 맞춤(tools/data/rollstart_l1_2023_2026.json, 노트 105) */
 function startTrK(tr){const o=tr&&tr.ovt!=null?tr.ovt:0.5;return Math.min(1.4,Math.max(0.4,(o+STARTV.o0)/(0.5+STARTV.o0)))}
 // 재능 페이스 배율(2026-11-08): 측정(같은 난수, F1 중위권) 페이스 +80 = 결승 +1.8위인데 불타는 투지 L3 +3.4·굶주린 늑대 +3.2, 예선 재능 L3 그리드 +7(결승 +0.3)이었다
 const TAL_RK=0.55,TAL_QK=0.5;
@@ -9564,7 +9564,7 @@ Race.prototype._doStart=function(){
     if(c.me&&tf.start) s+=tf.start*6;else if(!c.me&&c.tal){const at=this.aiTf(c,{phase:'start',pos:i+1,chasing:false,defending:false});
     if(at.start) s+=at.start*6}
     if(c.me&&sIn!=null) s+=sIn*START_K;
-    return {c,k:i-(s-520)/260*(this.startMix==='roll'?0.6:1)+gauss()*(this.startMix==='roll'?0.36:0.6*kT*(1+STARTV.g*Math.min(i,15)/15))}});   /* [SRUL] 출발 혼전 모델(노트 100): 카트 롤링 값은 카트만 — 인디 · WEC · GT 롤링에 쓰면 인디 500 폴 시터 첫 랩 선두 96%(실제 2020~2022 세 해 연속 잃음) · 큰 차 롤링 실측 전까지 스탠딩 값 */   /* [STARTV] 스탠딩 스타트만: 서킷 추월 쉬움 · 그리드 뒤쪽일수록 혼전(실측이 F1 스탠딩뿐 — 롤링은 그대로) */   /* [SRUL] 카트 롤링 스타트: 출발 혼전이 작다 */  // 2026-11-06: 0.9→0.6 — 폴 시터가 첫 랩에 너무 자주(F1 42%) 선두를 잃었다
+    return {c,k:i-(s-520)/260*(this.startMix==='roll'?0.6:1)+gauss()*(this.startMix==='roll'?0.36:this.startMix==='rollB'?STARTV.rB*kT*(1+STARTV.rG*Math.min(i,15)/15):0.6*kT*(1+STARTV.g*Math.min(i,15)/15))-(this.startMix==='rollB'&&i===0?STARTV.rL:0)}});   /* [SRUL] 출발 혼전 모델(노트 100): 카트 롤링 값은 카트만 — 인디 · WEC · GT 롤링에 쓰면 인디 500 폴 시터 첫 랩 선두 96%(실제 2020~2022 세 해 연속 잃음) · WEC · GT는 첫 랩 실측에 맞춘 rollB(노트 105) · 인디카는 랩 차트 실측 전까지 스탠딩 값 */   /* [STARTV] 스탠딩 스타트만: 서킷 추월 쉬움 · 그리드 뒤쪽일수록 혼전(실측이 F1 스탠딩뿐 — 롤링은 그대로) */   /* [SRUL] 카트 롤링 스타트: 출발 혼전이 작다 */  // 2026-11-06: 0.9→0.6 — 폴 시터가 첫 랩에 너무 자주(F1 42%) 선두를 잃었다
   keyed.sort((a,b)=>a.k-b.k);
   const before=this.order.indexOf(this.me);
   this.order=keyed.map(x=>x.c);this.order.forEach((c,i)=>c.time=i*0.35);
@@ -18363,7 +18363,7 @@ uiOn('modal:open',h=>{try{TL.mod(h)}catch(e){}});
    보내기는 ① 받을 곳이 있고(온라인 주간 파일 live.json의 "tele", https만) ② 플레이어가 동의했을 때만, 하루 한 번(text/plain POST · 5초 제한 · 실패해도 그날은 다시 안 보냄).
    지금은 받을 곳이 없어 아무것도 보내지 않는다 — 서버를 정하면 live.json에 주소만 넣고 배포하면 켜진다(앱 업데이트 없이). 보내는 것은 무작위 설치 번호와 숫자 집계뿐(이름 · 닉네임 · 저장 내용 · 창 제목 없음).
    테스트 모드(#qa · 자동화)에서는 window.__qaTele가 있어야 동작한다 */
-const BUILD="2026-11-26 01:36";   // build.py가 빌드 시각으로 바꾼다
+const BUILD="2026-11-26 06:52";   // build.py가 빌드 시각으로 바꾼다
 function teleDay(t){const d=new Date(t);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function teleMetrics(){try{TL.tick()}catch(e){}const L=TL.L;const m=x=>Math.round(x/6000)/10;const d0=k=>new Date(k+'T00:00:00').getTime();
   const inst=teleDay(L.inst||Date.now()),i0=d0(inst),age=Math.max(0,Math.round((d0(teleDay(Date.now()))-i0)/864e5));
