@@ -6226,21 +6226,123 @@ function frameAt(s,lane,out,d,nn){var r=idxAt(s),a=r[0],b=(a+1)%n,f=r[1];
   /* 장면 갭(2026-11-26, CONTINUOUS_RACE_PLAN 1단계 · 노트 107): 갭은 실제 레이스 시간 속도로 움직인다 — 한 랩의 갭 변화(g0 → g1)를 한 랩 시간(span초)에 걸쳐,
      화면에는 장면 길이(gdur초)만 보인다. 예전엔 한 랩의 변화를 세그먼트(0.7~6초)에 몰아 화면 둘레 차가 0.09~2.7배로 달리고 멈췄다(노트 106).
      gk: 갭이 끊겨 바뀐 횟수(점프 · 컷신 끝 · 컷 · 장면 끝 맞춤) — 중계 배속 보정(frame의 tau)이 셈에서 뺀다 */
-  function gStep(e,now){if(e.gEnd||!(e.gdur>0)) return;var t=(now-e.gS)/1000;
+  function gStep(e,now){if(e.gEnd||!(e.gdur>0)) return;var t=(now-e.gS)/1000,ts=(now-(e.sS||e.gS))/1000;
     var tE=Math.max(0,e.gdur-0.35);   /* 장면 끝 맞춤은 0.35초 앞서(UI의 다음 랩 계산 · 타워 그리기보다 먼저 — 세그먼트 끝 순서 = 시뮬) */
-    if(e.jump){if(t<tE){e.hid=true;return}e.hid=false;e.g=e.g1;e.sim=null;e.gEnd=true;e.gk=(e.gk||0)+1;return}   /* 큰 손실(피트 · 사고): 장면 동안 숨었다가 끝에 새 자리 */
+    /* 피트 인(노트 108): 들어가는 차 · 이미 피트 길의 차(시뮬이 피트 손실을 두 랩에 나눌 때)는 숨기지 않는다 — 장면 끝에 순위는 시뮬, 그림은 피트 길 */
+    if(e.jump&&(e.pitC||e.pd)){if(ts<tE) return;e.g=e.g1;e.gEnd=true;e.gk=(e.gk||0)+1;if(!e.pd) pitPark(e);return}
+    if(e.jump){if(ts<tE){e.hid=true;return}e.hid=false;e.g=e.g1;e.sim=null;e.gEnd=true;e.gk=(e.gk||0)+1;
+      if(e.pitT) pitPark(e);return}   /* 피트 차는 장면 끝에 자기 박스로(노트 108) */   /* 큰 손실(피트 · 사고): 장면 동안 숨었다가 끝에 새 자리 */
     var u=e.span>0?Math.min(1,t/e.span):1,g=e.g0+(e.g1-e.g0)*u;
     if(e.pass){var p=e.pass,q=(now-p.t0)/p.w;q=q<0?0:q>1?1:q;g+=p.amt*q*q*(3-2*q)}
     e.g=g;if(u>=1&&(!e.pass||now>=e.pass.t0+e.pass.w)) e.gEnd=true}
   function gCmp(a,b){return (a.g-b.g)||((a.pos||99)-(b.pos||99))}
   var LASTX=[];
+  /* 사건 자리(노트 108 — CONTINUOUS_RACE_PLAN 2단계): 섹터마다 가장 크게 브레이크를 밟는 코너 — 추월 자리 = 브레이크 구간 가운데 · 사고 자리 = 코너 꼭짓점.
+     섹터 경계 = 엔진의 섹터 시간 비율(o.sec)을 출발선(sfI)부터 이 3D의 랩 시간(LAP)에 맞춘 것 · 코너 = 속도표 v의 골(앞 400m의 가장 빠른 속도보다 8m/s 넘게 느림) */
+  var SPOTS=null,FOC=null,PSL=null;
+  function spotsGet(){if(SPOTS) return SPOTS;
+    var F=(o.sec&&o.sec.length)?o.sec:[1],T0=tm[sfI],acc=0,out=[],W=Math.max(4,Math.round(400/DS));
+    for(var k=0;k<F.length;k++){var ta=T0+LAP*acc,tb=T0+LAP*(acc+F[k]);acc+=F[k];
+      var ia=idxAt(sAtT(ta))[0],ib=idxAt(sAtT(tb))[0],best=null,len=(ib-ia+n)%n||n;
+      for(var q=0;q<len;q++){var i=(ia+q)%n;if(!(v[i]<=v[(i-1+n)%n]&&v[i]<=v[(i+1)%n])) continue;
+        var vm=0;for(var b=1;b<=W;b++){var j=(i-b+n)%n;if(v[j]>vm) vm=v[j]}
+        if(vm-v[i]>=8&&(!best||vm-v[i]>best.dr)) best={i:i,dr:vm-v[i],vm:vm}}
+      var sp=0,sa=0;
+      if(best){var hv=(best.vm+v[best.i])/2,i2=best.i;for(var b2=0;b2<W;b2++){var j2=(best.i-b2+n)%n;if(v[j2]>=hv){i2=j2;break}}
+        sp=cum[i2];sa=cum[best.i]}else sp=sa=sAtT((ta+tb)/2);
+      out.push({pass:sp,inc:sa})}
+    return SPOTS=out}
+  function spotOf(sec,k){var S=spotsGet(),x=S[Math.max(0,Math.min(S.length-1,sec|0))];return k==='pass'?x.pass:x.inc}
+  /* 차가 지금 시계(tau)와 갭으로 자리 sp에 닿기까지 초 */
+  function arriveIn(e,sp){return ((((tAtS(sp)-(tau-e.g))%LAP)+LAP)%LAP)/Math.max(0.3,pace)}
+  /* 장면 초점(노트 108): 컷 장면에 내 사건(추월 · 피추월 · 실수 · 스핀)이 있으면 그 섹터의 자리에 장면을 놓는다 — 모든 차의 갭을 그 자리를 지나는 랩 비율로 옮기고
+     (컷이라 안 보임), 3D 시계 tau를 내 차가 T초 뒤(장면의 약 45%) 그 자리에 오게. 추월 창은 scenePlan이 T에 맞춘다 */
+  function focusScene(f,D){var me=null;for(var id in cars){if(cars[id].me) me=cars[id]}
+    if(!me||me.dnf||me.jump||!(me.span>0)) return null;
+    var sp=spotOf(f.s,f.k),T=D<2.7?D/2:Math.max(1.2,Math.min(D*0.45,D-1.5)),now=gNow();
+    var us=((((tAtS(sp)-tm[sfI])%LAP)+LAP)%LAP)/LAP;   /* 그 자리를 지나는 랩 비율 */
+    for(var id2 in cars){var e=cars[id2];if(e.dnf) continue;e.sim=null;if(e.jump||!(e.span>0)) continue;
+      var u0=Math.max(0,Math.min(1,us-T/e.span)),g=e.g0+(e.g1-e.g0)*u0;e.gS=now-u0*e.span*1000;
+      if(Math.abs(g-e.g)>1e-4){e.g=g;e.gk=(e.gk||0)+1}}
+    tau=tAtS(sp)+me.g0+(me.g1-me.g0)*Math.min(1,Math.max(us,T/me.span))-T*pace;
+    return {T:T,sp:sp,id:f.id,o:f.o||null,k:f.k}}
+  /* 그 차의 이번 랩 추월(엔진 기록 — 섹터)의 자리에 닿는 시각(초): 초점 추월이면 초점 시각, 장면 밖이면 null */
+  function passAt(e,D){if(FOC&&FOC.k==='pass'&&(e.id===FOC.id||e.id===FOC.o)) return FOC.T;
+    if(!PSL) return null;var p=null;for(var i=0;i<PSL.length;i++){if(PSL[i].id===e.id||PSL[i].o===e.id){p=PSL[i];break}}
+    if(!p) return null;var T=arriveIn(e,spotOf(p.s,'pass'));return T>0.8&&T<D-0.6?T:null}
+  /* 피트 인(노트 108): 이번 랩 피트에 들어가는 다른 차(엔진 기록). 컷 장면에 내 사건이 없으면 내 차 3초 안의 그 차가 장면의 약 45%에 피트 입구에 닿게 시계를 놓고,
+     장면 안에 입구에 닿는 차는 숨기지 않고 피트 길로(pitC). 닿지 못하는 차는 예전처럼 장면 동안 숨는다 */
+  var PDN=0,PITLAST=null;
+  function pitPlan(S,D){var me=null,P=PITINFO,tE=Math.max(0,D-0.35);for(var id in cars){if(cars[id].me) me=cars[id]}
+    if(!FOC&&S.cut&&me&&!me.dnf&&!me.jump&&!cine){var best=null,bd=3;   /* 내 피트 장면(컷신)은 내 것 */
+      S.pits.forEach(function(pid){var e=cars[pid];if(!e||e.me||e.dnf||!e.jump) return;
+        var d=((e.g-me.g)%LAP+LAP)%LAP;if(d>LAP/2) d-=LAP;if(Math.abs(d)<bd){bd=Math.abs(d);best=e}});
+      if(best){var T=D<2.7?D/2:Math.max(1.2,Math.min(D*0.45,D-1.5));for(var id2 in cars){if(!cars[id2].dnf) cars[id2].sim=null}
+        tau=tAtS(P.sA)+best.g-T*pace;FOC={T:T,sp:P.sA,id:best.id,o:null,k:'pit'}}}
+    PITLAST={n:S.pits.length,cut:!!S.cut,foc:FOC&&FOC.k,c:[]};   /* 측정용: 피트 인 판단(노트 108 — tools/sceneaudit.py) */
+    S.pits.forEach(function(pid){var e=cars[pid];if(!e||e.me||e.dnf||!e.jump||e.pd) return;e.pitT=true;var Ta=arriveIn(e,P.sA);if(Ta<tE-0.2) e.pitC=true;
+      var d=me?((e.g-me.g)%LAP+LAP)%LAP:0;if(d>LAP/2) d-=LAP;PITLAST.c.push([pid,+d.toFixed(1),+Ta.toFixed(1),e.pitC?1:0])})}
+  /* 피트 아웃 초점(노트 108): 컷 장면에 다른 초점이 없고, 박스에 선 차가 피트 뒤 갭으로 내 차 3초 안에 합류하면 — 그 차가 장면 45% + 1초에 합류점에 닿게
+     시계를 놓고, 그 차를 피트 길 위 그만큼 앞 자리에 리미터 속도로 놓는다(컷이라 안 보임) */
+  function exitPlan(S,D){var me=null,P=PITINFO,sw=P.sB+70,best=null,bd=3;for(var id in cars){if(cars[id].me) me=cars[id]}
+    if(FOC||!me||me.dnf||me.jump||cine) return false;bd=4;   /* 이어 가는 장면이면 3D가 스스로 컷(감독이 합류로 넘기듯) */
+    for(var id2 in cars){var e=cars[id2];if(!e.pd||e.pd.ph!=='box'||e.dnf||(e.jump&&e.pitC&&!e.gEnd)) continue;
+      var d=((e.g-me.g)%LAP+LAP)%LAP;if(d>LAP/2) d-=LAP;if(d<-0.2&&d>-4&&-d<bd){bd=-d;best=e}}   /* 내 앞 4초 안(뒤로 합류하면 헬리 캠에 안 잡힌다) */
+    if(!best) return false;var T=D<2.7?D/2:Math.max(1.2,Math.min(D*0.45,D-1.5)),Tm=T+1,q=best.pd,VL=q.vl||22,lo=q.box,hi=sw;
+    for(var k=0;k<24;k++){var mid=(lo+hi)/2;if(driveTime(mid,VL,VL)>Tm) lo=mid;else hi=mid}
+    q.s=lo;q.v=VL;q.ph=lo<P.sB?'out':'merge';q.Lp=null;q.hold=false;for(var id3 in cars){if(!cars[id3].dnf) cars[id3].sim=null}
+    tau=tAtS(sw)+best.g-Tm*pace;FOC={T:T,sp:sw,id:best.id,o:null,k:'pitout'};return true}
+  /* 차 id마다 다른 박스 자리(피트 길 앞 70m ~ 끝 50m, 내 박스 ±15m는 비움) */
+  function pitBox(e){var P=PITINFO,h=0,id=String(e.id);for(var i=0;i<id.length;i++) h=(h*31+id.charCodeAt(i))>>>0;
+    var a=P.sA+70,b=P.sB-50,x=a+(b-a)*((h%1000)/1000);if(Math.abs(x-P.sBox)<15) x=P.sBox+(x<P.sBox?-15:15);return x}
+  /* 이번 프레임에 피트 입구(sA)를 지났나 — 지났으면 그 자리 · 가로 위치에서 피트 길 주행을 시작 */
+  function pitEnter(e){var P=PITINFO,a=wrapD(P.sA-e.ps),b=wrapD(e.s-P.sA);if(!(a>=0&&b>=0&&a+b<150)) return false;
+    var fr=frameAt(P.sA,e.lane||0,tmpP,tmpD,tmpN);e.pd={s:P.sA+b,v:Math.max(10,vAt(P.sA)*pace),L0:fr[2],Lp:fr[2],box:pitBox(e)};
+    e.pd.vl=pitVl(e,e.pd.s,2.4);PDN++;return true}
+  /* 피트 길 주행(노트 108) — in: 입구에서 리미터(22m/s)까지 감속(20m/s²) · 박스 30m 앞부터 멈춤 / box: 정비 2.4초 뒤, 피트 뒤 갭의 트랙 자리가 합류점(출구 + 70m)에
+     닿는 시각에 맞춰 출발(20초 넘게 남으면 다음 컷까지 박스에) / out: 8m/s²로 리미터까지 · 출구 앞 60m부터 입구 차선으로 / merge: 출구를 지나 10m/s²로 가속하며
+     70m 동안 트랙 안쪽으로 비켜 들어와 트랙 배치로 넘긴다(남은 자리 차이는 e.off로 40m 넘게 푼다). 움직이는 피트 차끼리 9m(박스에 선 차는 빠른 길 밖) */
+  var PDX=0;
+  function driveTime(s0,v0,vl){var P=PITINFO,sw=P.sB+70,s=s0,v=v0,t=0;
+    while(s<sw&&t<90){var vt=s<P.sB?vl:Math.max(vl,vAt(s)*pace),ac=s<P.sB?8:10;v=Math.min(vt,v+ac*0.05);s+=v*0.05;t+=0.05}return t}
+  /* 피트 길 속도: 3D 피트 길은 메인 직선 전체라 리미터 22m/s로는 시뮬의 피트 손실보다 오래 걸렸다 — 피트 뒤 갭의 트랙 자리가 합류점에 닿는 시각에 맞춰 16~34m/s */
+  function pitVl(e,s0,stop){var P=PITINFO,sw=P.sB+70,g=e.g1!=null?e.g1:e.g,Tsw=((((tAtS(sw)-(tau-g))%LAP)+LAP)%LAP)/Math.max(0.3,pace),t=Tsw-stop-3;
+    return t>4?Math.max(16,Math.min(34,(sw-s0)/t)):22}
+  /* 피트에 들어간 차를 자기 박스에(정비는 끝난 셈 — 장면 동안 피트 입구에 못 닿았거나 숨었던 피트 차) */
+  function pitNearMe(e){var me=null;for(var id in cars){if(cars[id].me) me=cars[id]}if(!me||me.dnf||me.jump||cine) return false;
+    var d=((e.g-me.g)%LAP+LAP)%LAP;if(d>LAP/2) d-=LAP;return d<-0.2&&d>-4}   /* 내 앞 4초 안 합류만 — 헬리 캠은 내 차 뒤 위에서 앞을 본다 */
+  function pitPark(e){var b=pitBox(e);e.pd={ph:'box',s:b,box:b,v:0,t0:performance.now()-2400,L0:PITINFO.lane,Lp:null};
+    e.pd.vl=pitVl(e,b,0);e.hid=false;e.pdH=false}
+  function pitDrive(e,dt){var p=e.pd,P=PITINFO,sw=P.sB+70,LS=-(HW-1.6),ns=p.s,L;p.ph=p.ph||'in';
+    var VL=p.vl||22;if(p.ph==='in'){var dB=p.box-p.s,vt=dB>30?VL:Math.max(0,VL*dB/30);p.v=p.v>vt?Math.max(vt,p.v-20*dt):Math.min(vt,p.v+6*dt);
+      ns=dB<=0.2?p.box:p.s+p.v*dt;if(dB<=0.2){p.ph='box';p.t0=performance.now();p.v=0}}
+    else if(p.ph==='box'){p.v=0;
+      if(!p.hold&&!(e.jump&&e.pitC&&!e.gEnd)&&performance.now()-p.t0>2400){if(p.Td==null) p.Td=driveTime(p.box,0,VL);
+        var tw=arriveIn(e,sw)-p.Td;if(tw>25) p.hold=true;
+        else if(tw<=0.05&&!(pitNearMe(e)&&!(FOC&&FOC.k==='pitout'&&FOC.id===e.id))) p.ph='out'}}   /* 내 차 둘레로 합류하면 다음 장면의 피트 아웃 초점을 기다린다 */
+    else{var vt2=p.s<P.sB?VL:Math.max(VL,vAt(p.s)*pace);p.v=Math.min(vt2,p.v+(p.s<P.sB?8:10)*dt);ns=p.s+p.v*dt;if(ns>=P.sB) p.ph='merge'}
+    if(p.ph!=='box') for(var id in cars){var o=cars[id];if(o!==e&&o.pd&&o.pd.ph!=='box'&&o.pd.s>p.s&&o.pd.s-ns<9) ns=Math.min(ns,o.pd.s-9)}
+    p.s=Math.max(p.s,ns);var tr=p.s-P.sA;
+    if(p.ph==='in'||p.ph==='box'){var u1=Math.min(1,tr/50),u2=Math.max(0,Math.min(1,(tr-50)/70));
+      L=p.L0+(P.laneIn-p.L0)*u1*u1*(3-2*u1);L+=(P.lane-L)*u2*u2*(3-2*u2)}
+    else if(p.ph==='out'){var st=Math.max(p.box,P.sB-60),u3=Math.max(0,Math.min(1,(p.s-st)/Math.max(10,P.sB-st)));L=P.lane+(P.laneIn-P.lane)*u3*u3*(3-2*u3)}
+    else{var u4=Math.max(0,Math.min(1,(p.s-P.sB)/70));L=P.laneIn+(LS-P.laneIn)*u4*u4*(3-2*u4)}
+    var lr=dt>0&&p.Lp!=null?(L-p.Lp)/dt:0;p.Lp=L;
+    pitAt(p.s,L,tmpP,tmpD,tmpN);e.m.position.copy(tmpP);var vh=Math.max(4,p.v),yaw=Math.atan2(tmpD.x*vh+tmpN.x*lr,tmpD.z*vh+tmpN.z*lr);
+    e.yaw=yaw;e.m.rotation.set(0,yaw,0,'YXZ');e.v=p.v;e.s=p.s;e.lane=L;e.m.visible=true;e.Lp=null;e.sd=null;
+    var ud=e.m.userData,rot=p.v*dt/0.36;if(ud.wheels) ud.wheels.forEach(function(w){if(w.s) w.s.rotation.x+=rot});
+    /* 합류점을 지나면 트랙 배치로(자리 차이는 e.off — 출발 격자 풀기와 같은 방식) */
+    if(p.ph==='merge'&&p.s>=sw){var sim=sAtT(tau-e.g),fr0=frameAt(p.s,0,tmpP,tmpD,tmpN);
+      e.rel=sim;e.off=wrapD(p.s-sim);if(Math.abs(e.off)<0.5) e.off=0;
+      e.lane=LS-fr0[2];e.lv=0;e.pd=null;e.pitC=false;e.sim=null;e.s=p.s;PDX++}}
   /* 장면 계획(노트 107): 화면 둘레(내 차와 트랙 150m 안 — 헬리 캠 · TV 캠에 같이 잡히는 거리) 차끼리 순서가 바뀌면 추월 동작으로 장면 안에서 마친다
      (상대 속도 15% 안 — 장면 안에 못 끝내면 필요한 만큼). 화면 밖 차는 장면 끝 순서 맞춤(orderFix)이 놓는다. 그래서 장면 끝의 화면 순서(타워 · 라벨) = 시뮬 순서.
      돌려주는 목록 = 이번 장면의 추월 시각(초, 지금부터) — UI가 추월 줄을 이 순간에 띄운다(crossings) */
   /* 장면 끝 순서 맞춤(노트 107): SCTE(장면 끝 0.35초 전) 뒤엔 시뮬 순서(목표 갭 g1 · 순위)대로 화면 갭이 늘어서게 — 어긋나면 화면 밖 차만 옮긴다(안 보임).
      화면 둘레 차는 실제 시간 속도로 목표보다 늦게 따라가므로, 그 사이에 목표가 끼는 화면 밖 차가 있으면 타워 순서가 시뮬과 달랐다(synctest A) */
   var SCTE=0;
-  function orderFix(now){var Lq=[];for(var id in cars){var e=cars[id];if(!e.dnf&&e.g1!=null&&!e.hid) Lq.push(e)}
+  /* 피트 차(노트 108): 그 피트 장면 끝까지의 갭(피트 앞)은 그림 자리일 뿐이라 뺀다. 박스 · 피트 길 차는 넣는다 — 화면 밖(vis 아님)이라 순서대로 옮겨도 안 보인다(빼면 장면 끝 순서가 시뮬과 어긋났다) */
+  function orderFix(now){var Lq=[];for(var id in cars){var e=cars[id];if(!e.dnf&&e.g1!=null&&!e.hid&&!(e.jump&&(e.pitC||e.pd)&&!e.gEnd)) Lq.push(e)}
     Lq.sort(function(a,b){return (a.g1-b.g1)||((a.pos||99)-(b.pos||99))});   /* 시뮬 순서 */
     /* 화면 안 차(vis)는 고정점 — 그 사이 화면 밖 차들을 시뮬 순서대로 놓는다: 자연 위치(실제 시간 속도)가 두 고정점 사이면 그대로, 아니면 사이로 좁힌다(필요한 만큼만).
        6차: 화면 밖 차를 무조건 목표로 옮기면, 한 랩에 많이 잃고 실제 속도로 늦게 따라가는 화면 안 차보다 뒤로 가 순서가 틀렸다(synctest A — 5차 3곳) */
@@ -6257,9 +6359,9 @@ function frameAt(s,lane,out,d,nn){var r=idxAt(s),a=r[0],b=(a+1)%n,f=r[1];
   function scenePlan(D){var out=[],Ls=[],ref=null,now=gNow();
     for(var id in cars){var e=cars[id];if(e.dnf||e.gEnd||e.gdur!==D) continue;Ls.push(e);if(e.me) ref=e}
     if(focusId&&cars[focusId]&&!cars[focusId].dnf) ref=cars[focusId];
-    var gr=ref?ref.g0:0;SCTE=now+Math.max(0,D-0.35)*1000;
+    var gr=ref?ref.g:0;SCTE=now+Math.max(0,D-0.35)*1000;
     var VT=150/Math.max(25,ref?vAt(ref.s||0):60);   /* 화면 둘레 = 내 차와 트랙 150m 안(헬리 · TV 캠에 잡히는 거리)을 지금 속도로 초로 — 느린 코너에서 1.6초(70m)로는 화면 안 차를 화면 밖으로 셌다 */
-    function vis(e){var d=((e.g0-gr)%LAP+LAP)%LAP;if(d>LAP/2) d-=LAP;return !e.jump&&Math.abs(d)<VT}
+    function vis(e){var d=((e.g-gr)%LAP+LAP)%LAP;if(d>LAP/2) d-=LAP;return !e.jump&&!e.pd&&Math.abs(d)<VT}   /* 피트 길 차는 트랙 화면 밖(노트 108) */
     var inv={},prs=[];
     for(var i0=0;i0<Ls.length;i0++) Ls[i0].vis=vis(Ls[i0]);   /* 화면 밖 차의 자리는 장면 끝에 순서 맞춤이 정한다(orderFix) */
     for(var i=0;i<Ls.length;i++) for(var j=0;j<Ls.length;j++){if(i===j) continue;var a=Ls[i],b=Ls[j];
@@ -6268,18 +6370,22 @@ function frameAt(s,lane,out,d,nn){var r=idxAt(s),a=r[0],b=(a+1)%n,f=r[1];
     /* 화면 안에서 순서가 바뀌면(노트 107 5차) 필요한 만큼만 움직인다: 추월 끝에 넘는 차가 넘은 차보다 여유(≤0.12초)만큼 앞서도록, 두 차의 그때 화면 간격 + 여유를
        두 차가 몫대로 줄인다(넘는 차는 빨라지고 넘긴 차는 늦어진다 — 몫은 아래 8차). 각자 자기 목표 갭(이번 랩 끝)을 넘지 않으므로 다른 차와의 순서도 시뮬과 같다.
        예전 4차(둘 다 목표까지)는 한 랩의 갭 변화를 장면 몇 초에 몰아 속도 95분위가 1.92배였다 */
-    var room=Math.max(0.6,D-0.65),ueR=Math.min(1,room/Math.max(1,Ls.length?Ls[0].span:80)),off={};
+    var room=Math.max(0.6,D-0.65),off={};
+    function uE(e){return Math.min(1,(now+room*1000-e.gS)/1000/Math.max(1,e.span))}   /* 장면 끝의 갭 단계(초점 장면은 랩 가운데부터) */
     /* 몫(8차): 순서가 바뀐 까닭이 한 차의 큰 손실(실수 · 문제)이면 그 차가 늦어지고 넘는 차는 제 페이스로 — 반씩 나누면 넘는 차들이 줄지어 1.15~1.35배로 달렸다.
-       몫 = 이번 랩 갭 변화가 무리(가운데 값)에서 벗어난 만큼. 늦어지는 차는 장면 여유의 45%까지(약 0.55배 — 둘레 차 0.5배 받침 ①에 걸리지 않게), 남는 몫은 넘는 차가 */
+       몫 = 이번 랩 갭 변화가 무리(가운데 값)에서 벗어난 만큼. 늦어지는 차는 장면 여유의 30%까지 — 부드러운 곡선의 가장 빠른 순간은 평균의 1.5배라 약 0.55배(둘레 차 0.5배 받침 ①에 걸리지 않게), 남는 몫은 넘는 차가 */
     var dl=Ls.filter(function(e){return !e.jump}).map(function(e){return e.g1-e.g0}).sort(function(x,y){return x-y}),md=dl.length?dl[dl.length>>1]:0;
-    prs.forEach(function(pr){var a=cars[pr[0]],b=cars[pr[1]],na=a.g0+(a.g1-a.g0)*ueR,nb=b.g0+(b.g1-b.g0)*ueR;
+    prs.forEach(function(pr){var a=cars[pr[0]],b=cars[pr[1]],na=a.g0+(a.g1-a.g0)*uE(a),nb=b.g0+(b.g1-b.g0)*uE(b);
       var mg=Math.min(0.12,Math.max(0.02,(a.g1-b.g1)/2)),S=nb-na+mg;
       if(S<=0) return;var sa=Math.max(0.05,a.g1-a.g0-md),sb=Math.max(0.05,md-(b.g1-b.g0));
-      var cb=Math.max(0,nb-b.g1),ca=Math.max(0,Math.min(a.g1-na,0.45*room)),xa=Math.min(ca,S*sa/(sa+sb)),xb=Math.min(cb,S-xa);xa=Math.min(ca,S-xb);
+      /* 늦어지는 차: 먼저 장면 여유의 30%까지(가장 느린 순간 약 0.55배), 넘는 차가 다 못 받으면 57%까지(약 0.15배 — 서지 않게). 남은 몫을 버리면 장면 끝 맞춤이 한 프레임에 옮겼다 */
+      var cb=Math.max(0,nb-b.g1),caF=Math.max(0,Math.min(a.g1-na,0.57*room)),ca=Math.min(caF,0.3*room);
+      var xa=Math.min(ca,S*sa/(sa+sb)),xb=Math.min(cb,S-xa);xa=Math.min(caF,S-xb);
       off[b.id]=Math.min(off[b.id]||0,-xb);off[a.id]=Math.max(off[a.id]||0,xa)});
     for(var id2 in off){var e2=cars[id2],amt=off[id2];if(!amt) continue;
       var w=Math.max(1.2,Math.min(room,Math.abs(amt)/0.15));if(Math.abs(amt)/w>0.35) w=Math.min(room,Math.abs(amt)/0.35);
-      e2.pass={t0:now+Math.max(0.2,Math.min(D*0.3,D-0.4-w))*1000,w:w*1000,amt:amt}}
+      var tc=passAt(e2,D);   /* 사건 자리(노트 108): 그 추월의 섹터 자리에 닿는 시각이 장면 안이면 추월 창 가운데를 거기에 */
+      e2.pass={t0:now+(tc!=null?Math.max(0.2,Math.min(D-0.4-w,tc-w/2)):Math.max(0.2,Math.min(D*0.3,D-0.4-w)))*1000,w:w*1000,amt:amt}}
     /* 추월 줄 시각 ≈ 두 차가 움직이는 창의 가운데 */
     prs.forEach(function(pr){var pa=cars[pr[0]].pass,pb=cars[pr[1]].pass,te=Math.max(pa?pa.t0+pa.w*0.5:now,pb?pb.t0+pb.w*0.5:now);
       out.push({a:pr[0],b:pr[1],t:(te-now)/1000})});
@@ -6298,6 +6404,7 @@ function frameAt(s,lane,out,d,nn){var r=idxAt(s),a=r[0],b=(a+1)%n,f=r[1];
     var D=Math.max(0,dur||0);
     /* 장면(노트 107): UI가 랩마다 넘긴다 — cut(새 장면: 직전 랩 끝 갭에 놓고 화면 전환) · lapT(한 랩의 실제 시간 — SC 중엔 1.45배). 장면 정보가 없거나 0.3초 이하 · 그리드 정렬 · 첫 프레임이면 바로 맞춘다(예전 그대로) */
     var SCN=state.scene&&D>0.3&&!first&&!holdOn?{cut:!!state.scene.cut,lapT:Math.max(20,(+state.scene.lapT||80)*(state.sc?1.45:1))}:null;
+    if(SCN){SCN.focus=state.scene.focus||null;SCN.passes=state.scene.passes||null;SCN.pits=state.scene.pits||null}   /* 사건 자리(노트 108) */
     state.list.forEach(function(c,ix){var e=cars[c.id];
     if(!e){var m=makeCar({c1:c.c1,c2:c.c2,num:c.num,me:c.me,helm:c.me?(c.helm||'#ffd23f'):(c.helm||c.c2),tyre:c.tyre,tcam:c.tcam});
     sc.add(m);
@@ -6305,13 +6412,16 @@ function frameAt(s,lane,out,d,nn){var r=idxAt(s),a=r[0],b=(a+1)%n,f=r[1];
     if(c.me&&c.c1){MYC={c1:c.c1,c2:c.c2};
     try{myGarage(c.c1)}catch(x){}}}
       var pt=e.tg;e.tg=c.gap;e.kn=null;e.kf=state.kf||null;
-      if(!SCN){e.g0=e.g1=e.tg;e.g=e.tg;e.gdur=0;e.gEnd=true;e.jump=false;e.hid=false;e.pass=null}
+      if(!SCN){e.g0=e.g1=e.tg;e.g=e.tg;e.gdur=0;e.gEnd=true;e.jump=false;e.hid=false;e.pass=null;e.pd=null;e.pdH=false;e.pitC=false}
       else{gStep(e,gNow());
+        /* 컷(노트 108): 박스로 가는 중 · 박스에 선 피트 차는 이어 간다(출발은 새 시계로 다시 잰다) — 나가는 중 · 박스에 묶인 차 · 숨은 차는 트랙의 새 자리로 */
+        if(SCN.cut&&(e.pdH||(e.pd&&(e.pd.ph==='out'||e.pd.ph==='merge')))){e.pd=null;e.pdH=false;e.hid=false;e.sim=null;e.off=0}
+        if(!e.pd&&!e.pdH){e.pitC=false;e.pitT=false}
         var a0=SCN.cut&&pt!=null&&isFinite(pt)?pt:e.g;   /* 컷: 직전 랩 끝 갭(이번 랩의 출발)에 놓는다 · 이어 가기: 지금 화면 갭에서 */
         if(a0!==e.g){e.g=a0;e.sim=null;e.gk=(e.gk||0)+1}
-        e.g0=a0;e.g1=e.tg;e.gS=gNow();e.gdur=D;e.span=SCN.lapT;e.gEnd=false;e.pass=null;
+        e.g0=a0;e.g1=e.tg;e.gS=e.sS=gNow();e.gdur=D;e.span=SCN.lapT;e.gEnd=false;e.pass=null;
         e.jump=Math.abs(e.tg-a0)>Math.max(4,SCN.lapT*0.05);
-        if(!e.jump) e.hid=false}
+        if(!e.jump&&!e.pdH) e.hid=false}
       e.dnf=c.dnf;
       e.dnfK=c.dnfK||null;
       e.me=c.me;
@@ -6332,6 +6442,11 @@ function frameAt(s,lane,out,d,nn){var r=idxAt(s),a=r[0],b=(a+1)%n,f=r[1];
       sc.add(scar)}
     if(!wantSc&&scar){sc.remove(scar);
       scar=null}
+    PSL=SCN?SCN.passes:null;FOC=SCN&&SCN.cut&&SCN.focus?focusScene(SCN.focus,D):null;if(SCN&&SCN.pits&&SCN.pits.length) pitPlan(SCN,D);
+    /* 피트 아웃 초점(노트 108) — 이어 가는 장면이면 3D가 스스로 컷 · 고르지 않은 '박스에 묶인 차'는 컷에 트랙의 새 자리로 */
+    if(SCN&&exitPlan(SCN,D)&&!SCN.cut) cutFx();
+    if(SCN&&SCN.cut) for(var ih in cars){var eh=cars[ih];
+      if(eh.pd&&eh.pd.hold){eh.pd=null;eh.hid=false;eh.sim=null;eh.off=0;eh.pitC=false;eh.pitT=false}}   /* 사건 자리(노트 108) */
     LASTX=SCN?scenePlan(D):[];CRX.xi=0;if(SCN&&SCN.cut) cutFx();
     // 디렉터: 이번 세그먼트에서 내 추월/피추월은 배틀 캠, 상위 3위권 추월은 TV캠으로 자동 컷 (세그먼트당 최대 2회)
     DIR=[];
@@ -6402,7 +6517,8 @@ function frameAt(s,lane,out,d,nn){var r=idxAt(s),a=r[0],b=(a+1)%n,f=r[1];
       /* 장면 안(노트 107 8차)에서는 기준 차의 갭 변화(추월 · 손실 — 실제 시간 속도)를 기준 차가 보인다. 예전처럼 tau를 옮기면 내가 잃을 때 필드 전체가 1.2~1.3배로
          빨라지고 내가 넘을 때 늦어졌다(내 차 둘레 4대가 함께 2~3초). 장면이 아닌 바로 맞춤(gdur 0)은 예전대로 기준 차를 실제 속도로 */
       if(dRef!=null&&!(rf.gdur>0)) dT=tb+(st.sc&&dRef<0?0:dRef);
-      if(dNear!=null) dT=Math.max(dT,Math.min(dNear+tb*0.5,dT+tb));   /* 둘레 차 때문에 기준 차가 2배를 넘지는 않게 */
+      /* 둘레 차 받침(①)도 장면 안에서는 쉰다(노트 108) — 장면의 갭은 실제 시간 속도라 둘레 차가 서지 않고, 추월당하는 차가 늦어질 때 필드 전체를 1.1~1.25배로 당겼다 */
+      if(dNear!=null&&!(rf.gdur>0)) dT=Math.max(dT,Math.min(dNear+tb*0.5,dT+tb));   /* 둘레 차 때문에 기준 차가 2배를 넘지는 않게 */
       tau+=Math.max(dT,tb*0.2)}
     var arr=[],rkL=[];
     for(var id in cars){var e=cars[id];
@@ -6417,10 +6533,12 @@ function frameAt(s,lane,out,d,nn){var r=idxAt(s),a=r[0],b=(a+1)%n,f=r[1];
       continue}
       if(first||holdOn){e.g=e.g1!=null?e.g1:e.tg}
       else gStep(e,gT0);
-      e.m.visible=!e.hid;if(e.hid){e.Lp=null;e.sd=null;continue}e.ps=e.s;
+      e.m.visible=!e.hid;if(e.hid){e.Lp=null;e.sd=null;continue}if(e.pd){pitDrive(e,dt);continue}e.ps=e.s;
       var sim=sAtT(tau-e.g);if(e.off){var trv=wrapD(sim-e.rel),f=Math.max(0,1-trv/Math.max(40,Math.abs(e.off)*1.3));if(f<=0) e.off=0;sim+=e.off*f}
       // 차는 절대 뒤로 가지 않는다(갭이 벌어져도 제자리에서 기다렸다가 다시 전진): 스타트 램프 중 갭 보정으로 뒤로 밀리던 문제
-      if(e.sim!=null){var bk=wrapD(sim-e.sim);if(bk<0) sim=e.sim}e.sim=sim;e.s=sim;arr.push(e)}
+      if(e.sim!=null){var bk=wrapD(sim-e.sim);if(bk<0) sim=e.sim}e.sim=sim;e.s=sim;
+      if(e.pitC&&e.ps!=null&&pitEnter(e)){pitDrive(e,dt);continue}   /* 피트 입구를 지나면 피트 길로(노트 108) */
+      arr.push(e)}
     first=false;arr.sort(gCmp);rkL.sort(gCmp);
     // 화면상 순서가 바뀌는 프레임에 UI에 알린다(타워를 교차 순간 바로 다시 그려 영상과 같은 순위 유지)
     if(o.onOrder&&!holdOn){var osig='';
@@ -6453,7 +6571,8 @@ function frameAt(s,lane,out,d,nn){var r=idxAt(s),a=r[0],b=(a+1)%n,f=r[1];
         for(k=0;k<arr.length;k++){if(k===i) continue;
         var o3=arr[k],d3=wrapD(o3.s-s3);
         if(d3===0) d3=k<i?1e-3:-1e-3;
-        if(d3>0&&d3<6&&Math.abs(o3.lane-e3.lane)<1.9) rq=Math.max(rq,6-d3)}
+        /* 피트에 들어갈 차(pitC, 노트 108 — 피트 앞 갭으로 달린다)는 뒤차를 밀지 않는다: 뒤차는 차선으로 비켜 지나간다(밀리면 0.4배까지 늦어져 둘레 차 받침이 필드 전체를 1.2배로 당겼다) */
+        if(d3>0&&d3<6&&Math.abs(o3.lane-e3.lane)<1.9&&!o3.pitC) rq=Math.max(rq,6-d3)}
         var pb=e3.pb||0;pb=rq>pb?Math.min(rq,pb+40*Math.min(dt,0.05)):Math.max(rq,pb-8*Math.min(dt,0.05));
         /* 뒤로는 안 간다(멈출 수는 있다) — 밀어낼 거리가 이번 프레임 전진보다 빨리 늘면 차가 뒤로 굴러서(측정 0.3~1.5m) */
         /* 2026-11-26(노트 107): 밀어낼 거리는 이번 프레임 전진의 35%까지만 늘린다 — 뒤차는 65% 속도 아래로 늦추지 않는다(예전엔 멈춤: 장면 1차에서 멈춤 219프레임) */
@@ -6716,6 +6835,8 @@ function frameAt(s,lane,out,d,nn){var r=idxAt(s),a=r[0],b=(a+1)%n,f=r[1];
   host._dbg.camNow=function(){return {m:camMode,man:manual,main:MAINC,cine:!!cine}};host._dbg.fin=function(){return FIN?{ph:FIN.ph,vis:!!(FLAG&&FLAG.visible),lead:FIN.lead}:null};   /* 메인 캠 시험(tools/camtest.py, 노트 102) */
   host._dbg.vAt=vAt;host._dbg.ref=function(){return refId};host._dbg.tau=function(){return tau};   /* 중계 배속 측정(tools/dectempo.py, 노트 95) */
   host._dbg.cutN=function(){return CUTN};   /* 컷 수(노트 107 — tools/r3motion.py가 컷을 걸친 프레임을 뺀다) */
+  host._dbg.spots=function(){return spotsGet()};host._dbg.foc=function(){return FOC};   /* 사건 자리 · 장면 초점(노트 108 — tools/sceneaudit.py) */
+  host._dbg.pdN=function(){return PDN};host._dbg.pitLast=function(){return PITLAST};host._dbg.pdX=function(){return PDX};   /* 피트 길로 들어간 다른 차 수(노트 108) */
   UPH=null;
   return {update:function(s2,d2){var u0=UPH,rv;
     UPH=UPF;
@@ -6768,6 +6889,9 @@ function frameAt(s,lane,out,d,nn){var r=idxAt(s),a=r[0],b=(a+1)%n,f=r[1];
       dirEv=null},_at:function(s,lane){var P=new T.Vector3(),D=new T.Vector3(),N=new T.Vector3();
       pitAt(s,lane,P,D,N);
       return {p:[P.x,P.y,P.z],d:[D.x,D.z],n:[N.x,N.z]}},_props:function(){return {warm:WARMT,style:STYLE,stands:PSTAND,boards:PBN,boardAt:PBOARD,pit:PITINFO,LEN:LEN}},
+    /* 사건 자리(노트 108): 차 id가 섹터 sec의 자리(k — pass · 그 밖은 코너 꼭짓점)에 이번 장면 안에 닿으면 그 초, 아니면 null */
+    spotIn:function(id,sec,k){var e=cars[id];if(!e||e.dnf||e.hid||!(e.gdur>0)) return null;
+      var T=arriveIn(e,spotOf(sec,k)),left=e.gdur-(gNow()-(e.sS||e.gS))/1000-0.3;return T<left?T:null},
     lights:setLights,setFps:function(f){FPS=f||30},stats:function(){STATS.lost=LOSTN.lost;STATS.rest=LOSTN.rest;return STATS},
     /* 검수용: 선두를 트랙 거리 s(m)에 두기 · 입체 교차/좁아진 곳의 위치 */
     _seek:function(s){tau=tAtS(((s%LEN)+LEN)%LEN);
@@ -9169,6 +9293,7 @@ Race.prototype.planLap=function(c,tf){const G=this.G,d=G.d,W=this.W,tr=W.tr,S=G.
       if(this.fu) this.fuPrep(c,lap,true,false);
       p.pre+=pitLoss(G,this,c,this.sc>0);
       c.stops++;
+      if(!this.sim)(this.vis||(this.vis=[])).push({lap:this.lap,id:c.id||c.name,k:'pit'});   /* 피트 인(노트 108): 3D가 근처 차의 피트 길 진입을 보인다 — 결과 · 난수와 무관 */
       c.comp=srDry(this,tc.best);
       c.used[c.comp]=1;
       c.age=aiTakeAge(this,c);
@@ -9208,6 +9333,7 @@ Race.prototype.planLap=function(c,tf){const G=this.G,d=G.d,W=this.W,tr=W.tr,S=G.
         const fk=this.fu?this.fuPitAI(c,lap,emg):null;
         p.pre+=pitLoss(G,this,c,this.sc>0)+(emg?(this.fu.em||0):0);
         c.stops++;
+        if(!this.sim)(this.vis||(this.vis=[])).push({lap:this.lap,id:c.id||c.name,k:'pit'});
         if(this.mr&&(!this.mr.min||lap>this.mr.min)&&(!this.mr.max||lap<=this.mr.max)) c.mandOk=1;
         c.plan.shift();
         c.pitL=lap;
@@ -9318,6 +9444,8 @@ Race.prototype.resolve=function(s,neu,SE){const arr=this.order.filter(c=>!c.dnf)
       arr[j-1]=B;
       j--;
       ps.pass++;
+      /* 사건 자리(노트 108 — CONTINUOUS_RACE_PLAN 2단계): 누가 누구를 어느 섹터에서 넘었나 — 3D가 그 섹터의 추월 자리에서 보인다. 결과 · 난수와 무관 */
+      if(!this.sim)(this.vis||(this.vis=[])).push({lap:this.lap,id:B.id||B.name,o:A.id||A.name,k:'pass',s});
       if(B.me) ps.meUp=(ps.meUp||0)+1;
       if(A.me) ps.meDn=(ps.meDn||0)+1}else{ps.fail++;
       if(B.me) ps.meF=(ps.meF||0)+1;
@@ -18509,7 +18637,7 @@ uiOn('modal:open',h=>{try{TL.mod(h)}catch(e){}});
    보내기는 ① 받을 곳이 있고(온라인 주간 파일 live.json의 "tele", https만) ② 플레이어가 동의했을 때만, 하루 한 번(text/plain POST · 5초 제한 · 실패해도 그날은 다시 안 보냄).
    지금은 받을 곳이 없어 아무것도 보내지 않는다 — 서버를 정하면 live.json에 주소만 넣고 배포하면 켜진다(앱 업데이트 없이). 보내는 것은 무작위 설치 번호와 숫자 집계뿐(이름 · 닉네임 · 저장 내용 · 창 제목 없음).
    테스트 모드(#qa · 자동화)에서는 window.__qaTele가 있어야 동작한다 */
-const BUILD="2026-11-26 16:29";   // build.py가 빌드 시각으로 바꾼다
+const BUILD="2026-11-27 02:12";   // build.py가 빌드 시각으로 바꾼다
 function teleDay(t){const d=new Date(t);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function teleMetrics(){try{TL.tick()}catch(e){}const L=TL.L;const m=x=>Math.round(x/6000)/10;const d0=k=>new Date(k+'T00:00:00').getTime();
   const inst=teleDay(L.inst||Date.now()),i0=d0(inst),age=Math.max(0,Math.round((d0(teleDay(Date.now()))-i0)/864e5));
@@ -20666,7 +20794,7 @@ function r3Tick(R,dur){if(!r3On()||R3L.off||R3FAIL>=2) return;if(!R3V&&R&&R.done
   if(!R3V&&pth){try{$('#rHero').classList.add('r3');
     if(r3BigOn()) $('#rHero').classList.add('r3big');
     host.innerHTML=`<div class="r3tw" id="r3tw"></div><span class="r3hud">LIVE · ${esc(W.tr.n||'')}</span><span class="r3cam" id="r3cam">${C.M('ui.r3Tick.1')}</span><button class="r3big" id="r3big" aria-label="${C.M('ui.r3Tick.2')}">⤢</button>`;
-    R3V=R3D.race(host,{kind:(G&&G.season&&!(RACE&&RACE.rules&&!RACE.rules.career)&&CKIND[G.season.tier])||'f1',roll:(R&&R.roll)||0,venue:r3Venue(),bd:r3Bd(),tmix:R3TMIX[W.rid||'']||null,path:pth,night:!!W.tr.night||r3LmN(),wet:R.w>0.3,seed:hashS(W.rid),len:Math.max(1500,(W.tr.lap||80)*62),teamCols:r3Teams(),q:Math.max(0,effQ()-R3L.n),fps:effFps(),onLost:r3Lost,onOrder:()=>{try{if(RACE&&!RACE._flag&&document.getElementById('tower')) drawTower(true)}catch(e){}}});
+    R3V=R3D.race(host,{kind:(G&&G.season&&!(RACE&&RACE.rules&&!RACE.rules.career)&&CKIND[G.season.tier])||'f1',roll:(R&&R.roll)||0,sec:(R&&R.sec&&R.sec.f)||null,venue:r3Venue(),bd:r3Bd(),tmix:R3TMIX[W.rid||'']||null,path:pth,night:!!W.tr.night||r3LmN(),wet:R.w>0.3,seed:hashS(W.rid),len:Math.max(1500,(W.tr.lap||80)*62),teamCols:r3Teams(),q:Math.max(0,effQ()-R3L.n),fps:effFps(),onLost:r3Lost,onOrder:()=>{try{if(RACE&&!RACE._flag&&document.getElementById('tower')) drawTower(true)}catch(e){}}});
     r3Tick._new=true;
     R3V._m=r3CamPref();R3V.main(R3V._m);{const c0=document.getElementById('r3cam');if(c0) c0.textContent=R3V._m==null?C.M('ui.r3Tick.1'):CAMN[R3V._m]}
     host.onclick=ev=>{if(!R3V) return;
@@ -21363,7 +21491,15 @@ async function runRace(i,pro){factsSync();
     if(fast) D=Math.max(120,Math.round(D*0.2));
     if(lapAdv) D=uiApply('race:segD',D,RACE,MOMS);   /* [MOMENT-UI] 장면 배치 — 재시작 · 마지막 랩은 조금 늘린다 */
     if(lapAdv){const cutNow=!quiet||!sceneOn||sceneAir>=5500*(meta.settings.tempo||1);if(cutNow){sceneOn=true;sceneAir=0}sceneAir+=D;
-      RACE._scene={cut:cutNow,lapT:(W&&W.tr&&W.tr.lap)||80}}   /* r3State가 3D에 넘긴다(이번 갱신 한 번만) */
+      /* 사건 자리(노트 108 — CONTINUOUS_RACE_PLAN 2단계): 이번 랩 엔진 사건 기록(RACE.vis — 섹터)에서 내 사건 하나를 컷 장면의 초점으로(실수 · 스핀이 추월보다 먼저),
+         추월 목록은 3D가 그 섹터의 추월 자리에 닿는 시각에 맞춘다 */
+      const VI0=RACE.vis||[],me0=RACE.me.id||RACE.me.name,psL=[],ptL=[];let foc=null;
+      for(let vi=(RACE._visF||0);vi<VI0.length;vi++){const v=VI0[vi];if(v.k==='pass') psL.push({id:v.id,o:v.o,s:v.s});
+        if(v.k==='pit'&&v.id!==me0) ptL.push(v.id);   /* 피트 인(노트 108): 3D가 근처 차의 피트 길 진입을 보인다 */
+        if(v.id!==me0&&v.o!==me0) continue;if(v.k==='spin'||v.k==='mis'){if(!foc||foc.k==='pass') foc=v}else if(v.k==='pass'&&!foc) foc=v}
+      RACE._visF=VI0.length;
+      /* r3State가 3D에 넘긴다(이번 갱신 한 번만) */
+      RACE._scene={cut:cutNow,lapT:(W&&W.tr&&W.tr.lap)||80,focus:cutNow&&foc?{k:foc.k,s:foc.s|0,id:foc.id,o:foc.o||null}:null,passes:psL,pits:ptL}}
     if(lapAdv&&quiet!==quietOn) quietHud(quietOn=quiet);
     drawTower(true,lapAdv?D/sp()/1000:null);RACE._scene=null;  // 세그먼트 시작에도 화면 순서(직전 갭)로 그려 영상보다 먼저 바뀌지 않게
     if(RACE.lap>=RACE.laps&&!finalCue){finalCue=true;
@@ -21398,17 +21534,22 @@ async function runRace(i,pro){factsSync();
       setCtrl();
       continue}
     // 라인 시간 배치: 추월/피추월은 3D에서 두 차가 실제로 교차하는 순간, 피트·페널티는 세그먼트 초반, 나머지는 균등 분배
+    const incT={};   /* 사건 자리(노트 108): 스핀 · 실수가 3D에서 일어나는 시각(명목 ms) — 그 중계 줄도 그때 */
     if(R3V&&R3V.incident&&RACE.vis){const VI=RACE.vis;
-      for(let vi=(RACE._visI||0);vi<VI.length;vi++){const v=VI[vi];
-      if(v.k==='spin'||v.k==='mis') setTimeout(()=>{try{if(R3V&&R3V.incident) R3V.incident(v.id,v.k)}catch(e){}},D*(0.08+0.8*((v.s||0)+0.5)/3))}
+      for(let vi=(RACE._visI||0);vi<VI.length;vi++){const v=VI[vi];if(v.k!=='spin'&&v.k!=='mis') continue;
+        /* 그 섹터의 코너에 이번 장면 안에 닿으면 그 순간(노트 108), 아니면 예전처럼 섹터 시점 */
+        const tIn=R3V.spotIn?R3V.spotIn(v.id,v.s||0,v.k):null;if(tIn!=null&&incT[v.id]==null) incT[v.id]=tIn*1000*sp();
+        setTimeout(()=>{try{if(R3V&&R3V.incident) R3V.incident(v.id,v.k)}catch(e){}},tIn!=null?tIn*1000:D*(0.08+0.8*((v.s||0)+0.5)/3))}
       RACE._visI=VI.length}   /* 사건 연출(2026-11-21): 스핀 · 실수를 그 섹터 시점에 3D로 */
     const X=(R3V&&R3V.crossings)?R3V.crossings():[],used=new Set(),meId=RACE.me.id||RACE.me.name;
-    const pickX=f=>{for(let i=0;i<X.length;i++){if(!used.has(i)&&f(X[i])){used.add(i);
+    const incU={};const pickX=f=>{for(let i=0;i<X.length;i++){if(!used.has(i)&&f(X[i])){used.add(i);
       return X[i].t*1000*sp()}}
       return null};
     const n=newL.length,sched=newL.map(([l,imp],i)=>{let at=null;
       if(l.k==='overtake_me') at=pickX(c=>c.b===meId);else if(l.k==='overtaken_me') at=pickX(c=>c.a===meId);else if(/overtake_other|lead_change/.test(l.k)) at=pickX(()=>true);
       if(/pit_me|pen_serve|radio_pit|repair/.test(l.k)) at=D*0.12;
+      if(l.k==='mistake_me'&&incT[meId]!=null) at=incT[meId];
+      else if(l.k==='spin_other'){const k2=Object.keys(incT).find(k=>k!==meId&&!incU[k]);if(k2){incU[k2]=1;at=incT[k2]}}
       if(at==null) at=D*(0.12+0.72*(i+0.5)/Math.max(1,n));
       return [l,imp,Math.max(0,Math.min(D*0.93,at))]}).sort((a,b)=>a[2]-b[2]);
     let t=0;for(const [l,imp,at] of sched){if(at>t){await sleep(at-t);t=at}await showLine(l);if(/overtake|lead_change|collision|dnf/.test(l.k)) drawTower(true)}
